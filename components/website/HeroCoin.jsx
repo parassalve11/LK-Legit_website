@@ -1,0 +1,338 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+
+// ============================================================
+// HeroCoin — the LK55 coin revolving on its rock podium.
+//
+// CSS 3D transforms rather than WebGL, so the original render
+// (raised relief, bevels, baked lighting) survives intact; a
+// textured cylinder would flatten all of that away. Front face,
+// back face and a milled rim live in one preserve-3d context.
+//
+// drive="auto"   — revolves continuously; scrolling does not touch it.
+// drive="scroll" — angle follows scroll as the coin comes into view.
+// Dragging interferes with the spin in both modes.
+// ============================================================
+
+const EDGE_PANELS = 52;
+const THICKNESS_RATIO = 0.065;
+const BASE_SPEED = 26; // degrees per second
+const DRAG_GAIN = 0.55; // degrees per pixel dragged
+const SETTLE = 0.7;
+
+const CONTACT_Y = 0.686; // podium contact point, fraction of the platform image
+const COIN_SCALE = 0.56;
+
+function reedGradient(panelWidth) {
+  const reed = Math.max(3.2, panelWidth / 7);
+  return (
+    `repeating-linear-gradient(90deg,` +
+    ` #7d5a1c 0px,` +
+    ` #d9a63c ${reed * 0.28}px,` +
+    ` #fff3d0 ${reed * 0.5}px,` +
+    ` #d9a63c ${reed * 0.72}px,` +
+    ` #7d5a1c ${reed}px)`
+  );
+}
+
+export default function HeroCoin({
+  src = "/coin-face.png",
+  platform,
+  drive = "auto",
+  scrollSpin = 360,
+  className,
+}) {
+  const root = useRef(null);
+  const stage = useRef(null);
+  const [diameter, setDiameter] = useState(0);
+  const reduced = useReducedMotion();
+
+  // The 3D layout needs real pixels (translateZ has no percentage form).
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setDiameter(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Stop revolving once scrolled away — no point burning frames unseen.
+  const onScreen = useRef(true);
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen.current = entry.isIntersecting;
+      },
+      { rootMargin: "15% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const angle = useMotionValue(0);
+  const speed = useRef(BASE_SPEED);
+  const dragging = useRef(false);
+  const dragOffset = useRef(0);
+
+  // Hooks cannot be conditional, so useScroll always runs; its output is only
+  // written to the angle when drive="scroll". The sweep finishes once the coin
+  // is fully in view — a footer can never scroll past the viewport top, so an
+  // "end start" range would strand it mid-turn at the bottom of the page.
+  const { scrollYProgress } = useScroll({
+    target: root,
+    offset: ["start end", "end end"],
+  });
+  const scrollDeg = useTransform(scrollYProgress, [0, 1], [0, scrollSpin]);
+  const smoothScrollDeg = useSpring(scrollDeg, {
+    stiffness: 70,
+    damping: 22,
+    mass: 0.7,
+    restDelta: 0.01,
+  });
+  useMotionValueEvent(smoothScrollDeg, "change", (v) => {
+    if (drive === "scroll" && !dragging.current && !reduced) {
+      angle.set(v + dragOffset.current);
+    }
+  });
+
+  const pointerPitch = useMotionValue(0);
+  const pitch = useSpring(pointerPitch, { stiffness: 55, damping: 14 });
+  const bob = useMotionValue(0);
+
+  useAnimationFrame((t, delta) => {
+    if (reduced || !onScreen.current) return;
+    const dt = Math.min(delta, 50) / 1000;
+    if (drive === "auto" && !dragging.current) {
+      speed.current += (BASE_SPEED - speed.current) * Math.min(1, SETTLE * dt);
+      angle.set(angle.get() + speed.current * dt);
+    }
+    bob.set(Math.sin(t / 2400) * 6);
+  });
+
+  const rotateY = angle;
+  const rotateX = useTransform([pitch], ([p]) => -2.5 + p);
+
+  const facing = useTransform(rotateY, (deg) => Math.abs(Math.cos((deg * Math.PI) / 180)));
+  const faceBrightness = useTransform(facing, (f) => `brightness(${0.72 + f * 0.28})`);
+  // Hide the face near edge-on, or it shows as a dark sliver over the rim.
+  const faceOpacity = useTransform(facing, [0, 0.07, 0.2], [0, 0, 1]);
+  const glowOpacity = useTransform(facing, [0, 1], [0.3, 0.72]);
+  const contactScale = useTransform(facing, [0, 1], [0.5, 1]);
+  const contactOpacity = useTransform(facing, [0, 1], [0.45, 0.85]);
+
+  const lastX = useRef(0);
+  const lastT = useRef(0);
+
+  const onPointerDown = (e) => {
+    if (reduced) return;
+    dragging.current = true;
+    lastX.current = e.clientX;
+    lastT.current = e.timeStamp;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    pointerPitch.set((((e.clientY - r.top) / r.height) * 2 - 1) * -10);
+    if (!dragging.current) return;
+    const dx = e.clientX - lastX.current;
+    const dt = Math.max(1, e.timeStamp - lastT.current);
+    dragOffset.current += dx * DRAG_GAIN;
+    angle.set(angle.get() + dx * DRAG_GAIN);
+    speed.current = (dx * DRAG_GAIN * 1000) / dt;
+    lastX.current = e.clientX;
+    lastT.current = e.timeStamp;
+  };
+
+  const endDrag = (e) => {
+    if (dragging.current && e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    dragging.current = false;
+    // Cap the throw so a violent flick cannot spin it into a blur.
+    speed.current = Math.max(-900, Math.min(900, speed.current));
+  };
+
+  const onPointerLeave = (e) => {
+    pointerPitch.set(0);
+    endDrag(e);
+  };
+
+  const radius = diameter / 2;
+  const thickness = diameter * THICKNESS_RATIO;
+  const panelWidth = diameter ? (Math.PI * diameter) / EDGE_PANELS + 1.5 : 0;
+
+  return (
+    <div ref={root} className={className}>
+      <div
+        className="relative w-full"
+        style={{ aspectRatio: platform ? "1448 / 1086" : "1 / 1" }}
+      >
+        {/* Rock podium. The source render carries its own candlestick backdrop, so it
+            is masked down to the plinth and screen-blended: the remaining near-black
+            pixels drop into the page instead of showing a rectangular plate. */}
+        {platform && (
+          <img
+            src={platform}
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="absolute inset-0 h-full w-full select-none object-contain"
+            style={{
+              mixBlendMode: "screen",
+              // Horizontal radius is exactly 50%, so the fade reaches fully
+              // transparent right at the image edge — no rectangular seam. The
+              // solid region still runs to 80% of that (x 10%–90%), which
+              // covers the whole plinth (~12%–89%). Everything above it, the
+              // candlestick backdrop, fades out.
+              WebkitMaskImage:
+                "radial-gradient(ellipse 50% 40% at 50% 78%, #000 80%, transparent 100%)",
+              maskImage:
+                "radial-gradient(ellipse 50% 40% at 50% 78%, #000 80%, transparent 100%)",
+            }}
+          />
+        )}
+
+        <div
+          className="absolute touch-none"
+          style={{
+            width: platform ? `${COIN_SCALE * 100}%` : "100%",
+            left: "50%",
+            top: platform ? `${CONTACT_Y * 100}%` : "50%",
+            transform: platform ? "translate(-50%, -100%)" : "translate(-50%, -50%)",
+            perspective: 1600,
+            perspectiveOrigin: "50% 55%",
+            cursor: reduced ? "default" : "grab",
+          }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onPointerLeave={onPointerLeave}
+        >
+          <div ref={stage} className="relative aspect-square w-full">
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute inset-[-26%] rounded-full blur-[70px]"
+              style={{
+                opacity: glowOpacity,
+                background:
+                  "radial-gradient(circle at 50% 45%, rgba(255,224,138,0.5), rgba(212,175,55,0.2) 45%, transparent 72%)",
+              }}
+            />
+
+            <motion.div
+              className="relative h-full w-full"
+              style={{
+                rotateY,
+                rotateX,
+                y: reduced ? 0 : bob,
+                transformStyle: "preserve-3d",
+                willChange: "transform",
+              }}
+            >
+              {/* Milled rim: a cylinder of thin panels around the Z axis. */}
+              <div
+                className="absolute inset-0"
+                style={{ transformStyle: "preserve-3d", transform: "rotateX(90deg)" }}
+              >
+                {diameter > 0 &&
+                  Array.from({ length: EDGE_PANELS }, (_, i) => {
+                    const a = (i / EDGE_PANELS) * 360;
+                    // Gentle key light: enough to read as metal, never enough to go
+                    // muddy — the panels revolve, so a wide dark range would swing
+                    // dull faces into view at the edge-on pose.
+                    const shade = 0.82 + 0.3 * Math.max(0, Math.cos(((a - 32) * Math.PI) / 180));
+                    return (
+                      <div
+                        key={i}
+                        className="absolute left-1/2 top-1/2"
+                        style={{
+                          width: panelWidth,
+                          height: thickness,
+                          marginLeft: -panelWidth / 2,
+                          marginTop: -thickness / 2,
+                          transform: `rotateY(${a}deg) translateZ(${radius + 1}px)`,
+                          backgroundImage: `linear-gradient(180deg, rgba(255,248,225,0.5), rgba(255,255,255,0) 30%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.42)), ${reedGradient(panelWidth)}`,
+                          filter: `brightness(${shade.toFixed(3)})`,
+                        }}
+                      />
+                    );
+                  })}
+              </div>
+
+              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} opacity={faceOpacity} />
+              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} opacity={faceOpacity} back />
+            </motion.div>
+          </div>
+
+          {platform && (
+            <motion.div
+              aria-hidden
+              className="pointer-events-none absolute bottom-0 left-1/2 h-[7%] w-[64%] -translate-x-1/2 translate-y-1/2 rounded-[50%] blur-md"
+              style={{
+                scaleX: contactScale,
+                opacity: contactOpacity,
+                background:
+                  "radial-gradient(ellipse at center, rgba(0,0,0,0.9), rgba(0,0,0,0.4) 45%, transparent 72%)",
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CoinFace({ src, z, brightness, opacity, back = false }) {
+  return (
+    <motion.div
+      className="absolute inset-0"
+      style={{
+        transform: `translateZ(${back ? -z : z}px)${back ? " rotateY(180deg)" : ""}`,
+        backfaceVisibility: "hidden",
+        WebkitBackfaceVisibility: "hidden",
+        filter: brightness,
+        opacity,
+      }}
+    >
+      <img
+        src={src}
+        alt={back ? "" : "LK55 Level King gold coin"}
+        aria-hidden={back || undefined}
+        draggable={false}
+        className="h-full w-full select-none"
+      />
+      {/* Fixed specular sweep — sells the metal as it turns. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full mix-blend-screen"
+        style={{
+          background:
+            "linear-gradient(112deg, transparent 26%, rgba(255,240,200,0.16) 42%, rgba(255,255,255,0.24) 50%, rgba(255,240,200,0.14) 58%, transparent 74%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full"
+        style={{
+          boxShadow:
+            "inset 0 0 22px rgba(255,225,150,0.28), inset 0 6px 18px rgba(255,255,255,0.16), inset 0 -10px 26px rgba(0,0,0,0.42)",
+        }}
+      />
+    </motion.div>
+  );
+}

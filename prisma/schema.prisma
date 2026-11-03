@@ -1,0 +1,235 @@
+// Trade With LK Legist — content schema.
+//
+// Design rules (see audit):
+//  - Only models the current site actually needs. No Course/FAQ yet.
+//  - Section + SectionField carries per-section copy, so adding a heading
+//    never needs a migration.
+//  - FeatureItem/StatItem are shared repeatables keyed by sectionKey, which
+//    avoids one table per section.
+//  - Icons are stored as whitelisted string keys, never component names.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- auth ----------
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------- media ----------
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  url       String   @db.VarChar(500)
+  filename  String
+  mimeType  String
+  size      Int
+  width     Int?
+  height    Int?
+  alt       String?
+  createdAt DateTime @default(now())
+
+  siteLogo    SiteSettings[] @relation("SiteLogo")
+  siteFavicon SiteSettings[] @relation("SiteFavicon")
+  testimonial Testimonial[]
+  seo         SeoMeta[]
+}
+
+// ---------- global settings ----------
+
+model SiteSettings {
+  id              Int     @id @default(1)
+  siteName        String  @default("Trade with LK55")
+  tagline         String  @default("Learn. Analyze. Execute.")
+  logoId          Int?
+  faviconId       Int?
+  email           String  @default("support@tradewithlk55.com")
+  phone           String  @default("")
+  whatsapp        String  @default("")
+  address         String  @default("India · Worldwide Community")
+  footerText      String  @db.Text
+  copyright       String  @default("© 2026 Trade with LK55. All rights reserved.")
+  disclaimer      String  @db.Text
+  maintenanceMode Boolean @default(false)
+
+  logo    Media? @relation("SiteLogo", fields: [logoId], references: [id], onDelete: SetNull)
+  favicon Media? @relation("SiteFavicon", fields: [faviconId], references: [id], onDelete: SetNull)
+
+  updatedAt DateTime @updatedAt
+}
+
+model SocialLink {
+  id       Int     @id @default(autoincrement())
+  platform String  @unique // youtube | instagram | telegram | whatsapp | twitter
+  url      String
+  enabled  Boolean @default(true)
+  order    Int     @default(0)
+
+  @@index([order])
+}
+
+model NavItem {
+  id      Int     @id @default(autoincrement())
+  label   String
+  anchor  String // in-page anchor, e.g. "#learn"
+  order   Int     @default(0)
+  visible Boolean @default(true)
+
+  @@index([order])
+}
+
+// ---------- page sections ----------
+
+/// One row per section of the landing page. Drives visibility + order.
+model Section {
+  id       Int     @id @default(autoincrement())
+  key      String  @unique // hero | master | roadmap | videos | partner | dashboard | tools | news | testimonials | community | contact
+  name     String // human label shown in admin, e.g. "Hero Section"
+  eyebrow  String?
+  title    String?
+  subtitle String? @db.Text
+  visible  Boolean @default(true)
+  order    Int     @default(0)
+
+  fields SectionField[]
+
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/// Free-form copy belonging to a section (headings, button text, links).
+/// Keyed strings so new copy never requires a migration.
+model SectionField {
+  id        Int    @id @default(autoincrement())
+  sectionId Int
+  key       String // e.g. "primaryButtonText"
+  label     String // admin-facing label, e.g. "Primary Button Text"
+  value     String @db.Text
+  order     Int    @default(0)
+
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, key])
+}
+
+/// Icon + title + body cards: Master, learning categories,
+/// partner features, unlock steps, community links.
+model FeatureItem {
+  id         Int     @id @default(autoincrement())
+  sectionKey String
+  iconKey    String  @default("sparkles")
+  title      String
+  body       String? @db.Text
+  meta       String? // extra slot, e.g. "22K+" members or CTA label
+  href       String?
+  order      Int     @default(0)
+  visible    Boolean @default(true)
+
+  @@index([sectionKey, order])
+}
+
+/// Numbers shown publicly (hero stat bar, partner stats).
+model StatItem {
+  id         Int     @id @default(autoincrement())
+  sectionKey String
+  iconKey    String?
+  label      String
+  value      String
+  suffix     String  @default("")
+  countUp    Boolean @default(false)
+  order      Int     @default(0)
+  visible    Boolean @default(true)
+
+  @@index([sectionKey, order])
+}
+
+model Video {
+  id        Int     @id @default(autoincrement())
+  youtubeId String
+  title     String
+  duration  String  @default("")
+  views     String  @default("")
+  category  String  @default("")
+  order     Int     @default(0)
+  visible   Boolean @default(true)
+
+  @@index([order])
+}
+
+model Testimonial {
+  id       Int     @id @default(autoincrement())
+  name     String
+  role     String  @default("")
+  quote    String  @db.Text
+  avatarId Int?
+  rating   Int     @default(5)
+  order    Int     @default(0)
+  visible  Boolean @default(true)
+
+  avatar Media? @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+
+  @@index([order])
+}
+
+/// Trading sessions for the dashboard clock + the weekly live schedule.
+model MarketSession {
+  id        Int     @id @default(autoincrement())
+  kind      String  @default("market") // market | weekly
+  key       String  @default("")
+  label     String
+  openTime  String  @default("") // "07:00" UTC
+  closeTime String  @default("")
+  symbol    String  @default("") // TradingView symbol
+  day       String  @default("") // weekly only, e.g. "Mon–Fri"
+  time      String  @default("") // weekly only, e.g. "9:15 AM IST"
+  topic     String  @default("")
+  order     Int     @default(0)
+  visible   Boolean @default(true)
+
+  @@index([kind, order])
+}
+
+// ---------- leads ----------
+
+model Lead {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String   @default("")
+  subject   String   @default("")
+  message   String   @db.Text
+  type      String   @default("contact")
+  status    String   @default("NEW") // NEW | CONTACTED | CLOSED
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
+// ---------- seo ----------
+
+model SeoMeta {
+  id          Int     @id @default(autoincrement())
+  pageKey     String  @unique @default("home")
+  title       String
+  description String  @db.Text
+  ogImageId   Int?
+  noIndex     Boolean @default(false)
+
+  ogImage Media? @relation(fields: [ogImageId], references: [id], onDelete: SetNull)
+
+  updatedAt DateTime @updatedAt
+}
