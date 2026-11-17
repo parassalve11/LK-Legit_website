@@ -40,26 +40,39 @@ function formatCountdown(mins) {
   return h > 0 ? `${h}h ${m}m` : `${m}m`;
 }
 
-/** Injects a TradingView embed script into a container. */
+/**
+ * Injects a TradingView embed script into a container.
+ *
+ * TradingView's loader looks up its own <script> tag's parent when it runs.
+ * In development React mounts every effect twice; if we inject straight away
+ * the first script is detached by the cleanup, still runs, and throws — which
+ * leaves the widget frame blank. Deferring by a tick means the first mount is
+ * cancelled before it ever injects anything.
+ */
 function useTradingViewWidget(src, config, deps = []) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.innerHTML = "";
-    const wrap = document.createElement("div");
-    wrap.className = "tradingview-widget-container__widget";
-    wrap.style.height = "100%";
-    wrap.style.width = "100%";
-    el.appendChild(wrap);
 
-    const script = document.createElement("script");
-    script.src = src;
-    script.type = "text/javascript";
-    script.async = true;
-    script.innerHTML = JSON.stringify(config);
-    el.appendChild(script);
+    const timer = setTimeout(() => {
+      el.innerHTML = "";
+      const wrap = document.createElement("div");
+      wrap.className = "tradingview-widget-container__widget";
+      wrap.style.height = "100%";
+      wrap.style.width = "100%";
+      el.appendChild(wrap);
+
+      const script = document.createElement("script");
+      script.src = src;
+      script.type = "text/javascript";
+      script.async = true;
+      script.innerHTML = JSON.stringify(config);
+      el.appendChild(script);
+    }, 0);
+
     return () => {
+      clearTimeout(timer);
       el.innerHTML = "";
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,66 +163,138 @@ function LiveChart({ sessions }) {
   );
 }
 
-function MarketOverview() {
-  const ref = useTradingViewWidget(
-    "https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js",
-    {
-      colorTheme: "dark",
-      dateRange: "12M",
-      showChart: true,
-      locale: "en",
-      width: "100%",
-      height: "100%",
-      largeChartUrl: "",
-      isTransparent: true,
-      showSymbolLogo: true,
-      showFloatingTooltip: true,
-      tabs: [
-        {
-          title: "Indices",
-          symbols: [
-            { s: "BSE:SENSEX", d: "Sensex" },
-            { s: "NSE:NIFTY", d: "Nifty 50" },
-            { s: "FOREXCOM:SPXUSD", d: "S&P 500" },
-            { s: "FOREXCOM:NSXUSD", d: "Nasdaq 100" },
-          ],
-        },
-        {
-          title: "Commodities & Crypto",
-          symbols: [
-            { s: "MCX:GOLD1!", d: "Gold (MCX)" },
-            { s: "BINANCE:BTCUSDT", d: "Bitcoin" },
-            { s: "BINANCE:ETHUSDT", d: "Ethereum" },
-          ],
-        },
-      ],
-    },
+/**
+ * Embeds a TradingView widget as a plain iframe we size ourselves.
+ *
+ * TradingView's loader script (used by the Live Chart) rewrites its container
+ * and forces height:100% on it, which collapsed these widgets to 150px and,
+ * combined with React's double-mounted effects in dev, sometimes left them
+ * blank. The iframe URL is exactly what that loader would build.
+ */
+function TradingViewFrame({ widget, config, title, className, scrollLock = false }) {
+  const src = useMemo(
+    () =>
+      `https://www.tradingview-widget.com/embed-widget/${widget}/?locale=en#${encodeURIComponent(
+        JSON.stringify({ width: "100%", height: "100%", ...config }),
+      )}`,
+    [widget, config],
   );
+  // A scrolling widget inside the page swallows the mouse wheel, so visitors
+  // get stuck scrolling through the whole list. Until they click into it, a
+  // transparent shield lets the wheel scroll the page instead.
+  const [active, setActive] = useState(false);
+
   return (
     <div
-      ref={ref}
-      className="h-100 w-full overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.2)] bg-[rgba(10,8,5,0.4)] md:h-125"
+      className={cn(
+        "relative w-full overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.2)] bg-[#0b0906]",
+        className,
+      )}
+      onMouseLeave={() => setActive(false)}
+    >
+      <iframe
+        key={src}
+        src={src}
+        title={title}
+        loading="lazy"
+        className="block h-full w-full border-0"
+      />
+      {scrollLock && !active ? (
+        <button
+          type="button"
+          onClick={() => setActive(true)}
+          aria-label={`Interact with ${title}`}
+          className="group absolute inset-0 z-10 flex cursor-pointer items-end justify-center bg-transparent pb-4"
+        >
+          <span className="rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(10,8,5,0.85)] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#f5c451] opacity-80 shadow-lg backdrop-blur transition group-hover:opacity-100">
+            Click to scroll the {title.toLowerCase()}
+          </span>
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+// Only symbols TradingView allows in free embeds. NSE (Nifty) and MCX feeds
+// are licensed and show an error badge instead of a price, so they're left out.
+const OVERVIEW_CONFIG = {
+  colorTheme: "dark",
+  dateRange: "12M",
+  showChart: true,
+  isTransparent: true,
+  showSymbolLogo: true,
+  showFloatingTooltip: true,
+  plotLineColorGrowing: "rgba(245, 196, 81, 1)",
+  plotLineColorFalling: "rgba(245, 196, 81, 1)",
+  belowLineFillColorGrowing: "rgba(245, 196, 81, 0.12)",
+  belowLineFillColorFalling: "rgba(245, 196, 81, 0.12)",
+  belowLineFillColorGrowingBottom: "rgba(245, 196, 81, 0)",
+  belowLineFillColorFallingBottom: "rgba(245, 196, 81, 0)",
+  gridLineColor: "rgba(212, 175, 55, 0.06)",
+  scaleFontColor: "rgba(201, 196, 184, 1)",
+  symbolActiveColor: "rgba(245, 196, 81, 0.12)",
+  tabs: [
+    {
+      title: "Indices",
+      symbols: [
+        { s: "BSE:SENSEX", d: "Sensex" },
+        { s: "FOREXCOM:SPXUSD", d: "S&P 500" },
+        { s: "FOREXCOM:NSXUSD", d: "Nasdaq 100" },
+      ],
+    },
+    {
+      title: "Commodities",
+      symbols: [
+        { s: "OANDA:XAUUSD", d: "Gold" },
+        { s: "TVC:SILVER", d: "Silver" },
+        { s: "TVC:USOIL", d: "Crude Oil" },
+      ],
+    },
+    {
+      title: "Forex",
+      symbols: [
+        { s: "FX_IDC:USDINR", d: "USD / INR" },
+        { s: "FX:EURUSD", d: "EUR / USD" },
+        { s: "FX:GBPUSD", d: "GBP / USD" },
+      ],
+    },
+    {
+      title: "Crypto",
+      symbols: [
+        { s: "BINANCE:BTCUSDT", d: "Bitcoin" },
+        { s: "BINANCE:ETHUSDT", d: "Ethereum" },
+      ],
+    },
+  ],
+};
+
+// The events widget filters by country code (it ignores "currencyFilter").
+const CALENDAR_CONFIG = {
+  colorTheme: "dark",
+  isTransparent: true,
+  importanceFilter: "0,1",
+  countryFilter: "in,us,eu,gb,jp,cn",
+};
+
+function MarketOverview() {
+  return (
+    <TradingViewFrame
+      widget="market-overview"
+      config={OVERVIEW_CONFIG}
+      title="Market overview"
+      className="h-95 md:h-105"
     />
   );
 }
 
 function EconomicCalendar() {
-  const ref = useTradingViewWidget(
-    "https://s3.tradingview.com/external-embedding/embed-widget-events.js",
-    {
-      colorTheme: "dark",
-      isTransparent: true,
-      width: "100%",
-      height: "100%",
-      locale: "en",
-      importanceFilter: "0,1",
-      currencyFilter: "USD,INR,EUR,GBP,JPY",
-    },
-  );
   return (
-    <div
-      ref={ref}
-      className="h-100 w-full overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.2)] bg-[rgba(10,8,5,0.4)] md:h-150"
+    <TradingViewFrame
+      widget="events"
+      config={CALENDAR_CONFIG}
+      title="Economic calendar"
+      className="h-95 md:h-105"
+      scrollLock
     />
   );
 }
@@ -247,7 +332,7 @@ export default function Dashboard({ section, marketSessions, weeklySessions }) {
             {tab === "Live Chart" && (
               <div className="relative w-full overflow-hidden rounded-2xl border border-[rgba(212,175,55,0.35)] bg-[rgba(10,8,5,0.6)] p-4 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.55)]">
                 <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-[rgba(245,196,81,0.12)]" />
-                <div className="h-112.5 w-full overflow-hidden md:h-150 lg:h-175">
+                <div className="h-100 w-full overflow-hidden md:h-115 lg:h-125">
                   <LiveChart sessions={marketSessions} />
                 </div>
               </div>

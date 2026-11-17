@@ -84,7 +84,7 @@ async function main() {
 
   // Repeatable content, grouped by the section that renders it.
   const featureGroups = [
-    ["master", D.MASTER_ITEMS],
+    ["system", D.SYSTEM_STEPS],
     ["categories", D.CATEGORIES],
     ["partner", D.PARTNER_FEATURES],
     ["unlock", D.UNLOCK_STEPS],
@@ -117,6 +117,7 @@ async function main() {
   const statGroups = [
     ["hero", D.HERO_STATS],
     ["roadmap", D.ROADMAP_STATS],
+    ["learnlk", D.LEARN_STATS],
     ["partner", D.PARTNER_STATS],
   ];
 
@@ -141,6 +142,13 @@ async function main() {
     }
   }
   console.log("  ✓ Statistics");
+
+  // The first build shipped with stand-in videos that aren't from the channel.
+  // Hide them (not delete) so the real LK55 uploads take their place.
+  await prisma.video.updateMany({
+    where: { youtubeId: { in: ["kJQP7kiw5Fk", "9bZkp7q19f0", "hY7m5jjJ9mM", "3JZ_D3ELwOQ"] } },
+    data: { visible: false },
+  });
 
   for (const v of D.VIDEOS) {
     const existing = await prisma.video.findFirst({ where: { youtubeId: v.youtubeId } });

@@ -1,17 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { Mail, MapPin, Phone, ArrowRight, Loader2, getIcon } from "@/components/common/icons";
+import { Mail, MapPin, Phone, ArrowRight, Loader2 } from "@/components/common/icons";
+import SocialIcon, { BRAND, brandKey } from "@/components/common/SocialIcon";
 import { Reveal, SectionHeader, GoldButton } from "@/components/common/Primitives";
 import { submitContact } from "@/app/(website)/actions";
-
-const SOCIAL_ICON = {
-  youtube: "youtube",
-  instagram: "instagram",
-  telegram: "send",
-  twitter: "star",
-  whatsapp: "message-circle",
-};
 
 function Field({ label, name, error, ...props }) {
   return (
@@ -121,19 +114,17 @@ export default function Contact({ section, settings, socials, logoUrl = "/Logo.p
                 </li>
               </ul>
               <div className="mt-6 flex gap-3">
-                {socials.map((s) => {
-                  const Icon = getIcon(SOCIAL_ICON[s.platform] || "globe");
-                  return (
-                    <a
-                      key={s.platform}
-                      href={s.url || "#"}
-                      aria-label={s.platform}
-                      className="grid h-10 w-10 place-items-center rounded-full border border-[rgba(212,175,55,0.35)] text-[#f5c451] hover:bg-[rgba(245,196,81,0.08)]"
-                    >
-                      <Icon className="h-4 w-4" />
-                    </a>
-                  );
-                })}
+                {socials.map((s) => (
+                  <a
+                    key={s.platform}
+                    href={s.url || "#"}
+                    aria-label={BRAND[brandKey(s.platform)].label}
+                    target={s.url?.startsWith("http") ? "_blank" : undefined}
+                    rel={s.url?.startsWith("http") ? "noopener noreferrer" : undefined}
+                  >
+                    <SocialIcon platform={s.platform} size="h-10 w-10" />
+                  </a>
+                ))}
               </div>
             </div>
             <div className="mt-8 flex items-center justify-center">

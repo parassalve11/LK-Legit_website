@@ -6,6 +6,9 @@ import { ArrowRight, Menu, X } from "@/components/common/icons";
 import { GoldButton } from "@/components/common/Primitives";
 import { cn } from "@/lib/utils";
 
+// The broker partner link is highlighted in ByteFX green on every screen size.
+const isPartner = (n) => n.anchor === "#partner" || /partner/i.test(n.label);
+
 export default function Header({ nav, siteName = "Trade with LK55", logoUrl = "/Logo.png" }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -44,25 +47,36 @@ export default function Header({ nav, siteName = "Trade with LK55", logoUrl = "/
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex">
-            {nav.map((n) => (
-              <a
-                key={n.label}
-                href={n.anchor}
-                onClick={() => setActive(n.label)}
-                className={cn(
-                  "relative text-xs font-semibold uppercase tracking-[0.22em] transition",
-                  active === n.label ? "text-[#f5c451]" : "text-[#c9c4b8] hover:text-[#f5c451]",
-                )}
-              >
-                {n.label}
-                {active === n.label && (
-                  <motion.span
-                    layoutId="nav-underline"
-                    className="absolute -bottom-2 left-0 right-0 h-px bg-gold-gradient-bright"
-                  />
-                )}
-              </a>
-            ))}
+            {nav.map((n) => {
+              const partner = isPartner(n);
+              return (
+                <a
+                  key={n.label}
+                  href={n.anchor}
+                  onClick={() => setActive(n.label)}
+                  className={cn(
+                    "relative font-semibold uppercase transition",
+                    partner
+                      ? "text-sm font-bold tracking-[0.18em] text-[#4ade80] drop-shadow-[0_0_10px_rgba(74,222,128,0.45)] hover:text-[#86efac]"
+                      : cn(
+                          "text-xs tracking-[0.22em]",
+                          active === n.label ? "text-[#f5c451]" : "text-[#c9c4b8] hover:text-[#f5c451]",
+                        ),
+                  )}
+                >
+                  {n.label}
+                  {active === n.label && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className={cn(
+                        "absolute -bottom-2 left-0 right-0 h-px",
+                        partner ? "bg-[#4ade80]" : "bg-gold-gradient-bright",
+                      )}
+                    />
+                  )}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
@@ -113,7 +127,12 @@ export default function Header({ nav, siteName = "Trade with LK55", logoUrl = "/
                     key={n.label}
                     href={n.anchor}
                     onClick={() => setOpen(false)}
-                    className="text-lg font-semibold uppercase tracking-[0.22em] text-[#f2f0eb] hover:text-[#f5c451]"
+                    className={cn(
+                      "font-semibold uppercase tracking-[0.22em]",
+                      isPartner(n)
+                        ? "text-xl font-bold text-[#4ade80] hover:text-[#86efac]"
+                        : "text-lg text-[#f2f0eb] hover:text-[#f5c451]",
+                    )}
                   >
                     {n.label}
                   </a>

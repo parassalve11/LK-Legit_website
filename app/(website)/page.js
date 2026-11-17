@@ -1,8 +1,9 @@
 import { getLandingContent, getSeo } from "@/services/content";
 import Header from "@/components/website/Header";
 import Hero from "@/components/website/Hero";
-import Master from "@/components/website/Master";
 import WhyLK from "@/components/website/WhyLK";
+import TradeSystem from "@/components/website/TradeSystem";
+import LearnFromLK from "@/components/website/LearnFromLK";
 import LearningHub from "@/components/website/LearningHub";
 import Partnership from "@/components/website/Partnership";
 import Dashboard from "@/components/website/Dashboard";
@@ -12,6 +13,7 @@ import Testimonials from "@/components/website/Testimonials";
 import Community from "@/components/website/Community";
 import Contact from "@/components/website/Contact";
 import Footer from "@/components/website/Footer";
+import WelcomePoster from "@/components/website/WelcomePoster";
 
 // SEO comes from the database (Settings → SEO), falling back to defaults.
 export async function generateMetadata() {
@@ -27,14 +29,16 @@ export async function generateMetadata() {
 export default async function HomePage() {
   const c = await getLandingContent();
   const s = c.sections;
+  const channelHref = s.videos?.fields?.channelUrl || "https://www.youtube.com/@TradewithLK55";
 
   // Section visibility and order are admin-controlled.
   const RENDERERS = {
     hero: () => (
       <Hero section={s.hero} checks={c.heroChecks} stats={c.heroStats} settings={c.settings} />
     ),
-    master: () => <Master section={s.master} items={c.masterItems} />,
     roadmap: () => <WhyLK section={s.roadmap} stats={c.roadmapStats} />,
+    system: () => <TradeSystem section={s.system} steps={c.systemSteps} />,
+    learnlk: () => <LearnFromLK section={s.learnlk} stats={c.learnStats} />,
     videos: () => (
       <LearningHub section={s.videos} categories={c.categories} videos={c.videos} />
     ),
@@ -72,6 +76,11 @@ export default async function HomePage() {
         })}
       </main>
       <Footer settings={c.settings} socials={c.socials} />
+      <WelcomePoster
+        siteName={c.settings.siteName}
+        communityHref={c.sectionOrder.includes("contact") ? "#contact" : channelHref}
+        lessonsHref={c.sectionOrder.includes("videos") ? "#videos" : channelHref}
+      />
     </div>
   );
 }

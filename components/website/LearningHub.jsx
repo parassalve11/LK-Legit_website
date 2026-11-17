@@ -71,11 +71,13 @@ export default function LearningHub({ section, categories, videos }) {
               </div>
               <div className="p-4">
                 <h4 className="line-clamp-2 text-sm font-semibold text-[#f2f0eb]">{v.title}</h4>
-                <div className="mt-2 flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#a19c8f]">
-                  <span>{v.views} views</span>
-                  <span>·</span>
-                  <span>{v.duration}</span>
-                </div>
+                {v.views || v.duration ? (
+                  <div className="mt-2 flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#a19c8f]">
+                    {v.views ? <span>{v.views} views</span> : null}
+                    {v.views && v.duration ? <span>·</span> : null}
+                    {v.duration ? <span>{v.duration}</span> : null}
+                  </div>
+                ) : null}
                 <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5c451]">
                   Watch on YouTube <ExternalLink className="h-3 w-3" />
                 </span>

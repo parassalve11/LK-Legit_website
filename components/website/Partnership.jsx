@@ -1,212 +1,231 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronRight, Lock, Star, getIcon } from "@/components/common/icons";
+import { useRef, useState } from "react";
+import { motion, animate, useMotionValue, useTransform } from "framer-motion";
+import { ShieldCheck } from "lucide-react";
+import { ArrowRight, ChevronRight, getIcon } from "@/components/common/icons";
+import { Reveal } from "@/components/common/Primitives";
 import { cn } from "@/lib/utils";
 
-export default function Partnership({ section, features, stats, steps }) {
-  const [tab, setTab] = useState("benefits");
-  const f = section.fields || {};
+const KNOB = 44;
+const PAD = 4;
+
+// "Slide to activate" button. Drag the knob to the end (or press Enter /
+// Space when focused) to open the broker registration link in a new tab.
+function SlideToActivate({ label, href }) {
+  const trackRef = useRef(null);
+  const x = useMotionValue(0);
+  const [done, setDone] = useState(false);
+
+  const maxX = () => (trackRef.current ? trackRef.current.offsetWidth - KNOB - PAD * 2 : 0);
+  const fillWidth = useTransform(x, (v) => v + KNOB);
+  const labelOpacity = useTransform(x, (v) => 1 - Math.min(1, v / Math.max(1, maxX() * 0.7)));
+
+  const activate = () => {
+    if (done) return;
+    setDone(true);
+    animate(x, maxX(), { type: "spring", stiffness: 400, damping: 35 });
+    window.open(href, "_blank", "noopener,noreferrer");
+    setTimeout(() => {
+      animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
+      setDone(false);
+    }, 1200);
+  };
+
+  const onDragEnd = () => {
+    if (x.get() >= maxX() * 0.85) activate();
+    else animate(x, 0, { type: "spring", stiffness: 400, damping: 30 });
+  };
 
   return (
-    <section
-      id="partner"
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden border-t border-white/5 bg-[#050505] p-4 md:p-8"
+    <div
+      ref={trackRef}
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          activate();
+        }
+      }}
+      onClick={(e) => {
+        // A plain tap on the track (not a drag of the knob) also works.
+        if (e.target === trackRef.current) activate();
+      }}
+      className="relative h-[52px] w-full max-w-[360px] cursor-pointer select-none overflow-hidden rounded-full border border-[#7ac943]/50 bg-[#0b1f12]/80 shadow-[inset_0_2px_6px_rgba(0,0,0,0.45)] outline-none transition-shadow hover:shadow-[0_10px_40px_rgba(122,201,67,0.25)] focus-visible:ring-2 focus-visible:ring-[#7ac943]/70"
     >
-      <div className="pointer-events-none absolute -left-32 top-1/4 z-0 h-[500px] w-[500px] rounded-full bg-green-500/10 blur-[120px]" />
-      <div className="pointer-events-none absolute -right-32 bottom-1/4 z-0 h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[120px]" />
+      <motion.div
+        className="pointer-events-none absolute rounded-full bg-linear-to-r from-[#7ac943]/30 to-[#7ac943]/70"
+        style={{ left: PAD, top: PAD, bottom: PAD, width: fillWidth }}
+      />
+      <motion.div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2 pr-[18px] pl-[56px] text-[14px] font-semibold text-white"
+        style={{ opacity: labelOpacity }}
+      >
+        <span className="activate-shimmer truncate">{label}</span>
+        <span className="flex text-[#7ac943]">
+          <ChevronRight className="-mr-2.5 h-4 w-4 opacity-40" />
+          <ChevronRight className="-mr-2.5 h-4 w-4 opacity-70" />
+          <ChevronRight className="h-4 w-4" />
+        </span>
+      </motion.div>
+      <motion.div
+        drag="x"
+        dragConstraints={trackRef}
+        dragElastic={0}
+        dragMomentum={false}
+        onDragEnd={onDragEnd}
+        style={{ x, width: KNOB, height: KNOB, top: PAD, left: PAD, touchAction: "pan-y" }}
+        className="absolute z-10 grid cursor-grab place-items-center rounded-full bg-linear-to-b from-[#9be06a] to-[#7ac943] text-[#07090a] shadow-[0_0_12px_rgba(122,201,67,0.35)] active:cursor-grabbing"
+      >
+        <ArrowRight className="h-5 w-5" />
+      </motion.div>
+    </div>
+  );
+}
 
-      <div className="relative z-10 w-full max-w-7xl">
-        <div
-          className="absolute inset-0 z-0 rounded-[2.5rem] bg-cover bg-center"
-          style={{ backgroundImage: "url(/Partnership_backgoround.png)" }}
-        />
+export default function Partnership({ section, features, stats }) {
+  const f = section.fields || {};
+  const disclaimers = [f.disclaimer1, f.disclaimer2, f.disclaimer3].filter(Boolean);
 
-        <div className="relative z-10 overflow-hidden rounded-[2.5rem] border border-white/10 bg-black/15 p-8 shadow-2xl backdrop-blur-sm md:p-14">
-          <div className="absolute inset-0 bg-linear-to-br from-black/50 via-black/20 to-black/55" />
-          <div className="pointer-events-none absolute inset-0 rounded-[2.5rem] border-t border-white/20 mix-blend-overlay" />
+  return (
+    <section id="partner" className="relative py-[72px] md:py-[120px]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        {/* Heading */}
+        <Reveal className="relative mb-12 md:mb-16">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-10 right-0 select-none font-display text-[140px] font-semibold leading-none text-white/[0.04] md:-top-16 md:text-[220px]"
+          >
+            {f.ghostNumber || "05"}
+          </span>
+          <div className="relative flex items-start gap-6">
+            <h2 className="font-display text-[44px] font-semibold leading-none tracking-tight text-[#f2f0eb] md:text-[84px]">
+              {f.heading || "Partner"}
+              <span className="text-[#4ade80]">.</span>
+            </h2>
+            <span aria-hidden="true" className="mt-8 hidden h-px w-16 bg-white/70 md:mt-12 md:block" />
+          </div>
+        </Reveal>
 
-          <div className="relative z-20 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.3fr] lg:gap-20">
-            <div className="flex flex-col justify-center">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-white/60">
+        {/* Main card */}
+        <div className="relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#050806] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)] lg:min-h-[620px]">
+          <img
+            src={f.backgroundImage || "/Partnership_backgoround.png"}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 h-full w-full scale-105 object-cover object-center opacity-85 blur-[3px]"
+          />
+          <div className="absolute inset-0 bg-linear-to-r from-[#050806]/85 via-[#050806]/35 to-[#050806]/25" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#050806]/90 via-transparent to-[#050806]/50" />
+
+          <div className="relative grid flex-1 gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_1.15fr] lg:gap-10 lg:px-10 lg:pt-10 lg:pb-6">
+            {/* Left: broker pitch */}
+            <div className="flex min-h-0 flex-col justify-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">
                 {section.eyebrow}
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center gap-4">
-                <a href={f.ctaLink} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                  <img src="/bytefx.png" alt="ByteFx logo" className="h-8 w-auto object-contain" />
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <a href={f.ctaLink} target="_blank" rel="noopener noreferrer">
+                  <img src="/bytefx.png" alt="ByteFX" className="h-9 w-auto object-contain" />
                 </a>
                 {f.badgeText ? (
-                  <div className="flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-                    <Star className="h-3.5 w-3.5 fill-green-400 text-green-400" />
-                    <span className="text-xs font-medium text-green-400">{f.badgeText}</span>
-                  </div>
+                  <span className="flex items-center gap-1.5 rounded-full border border-[#7ac943]/40 bg-[#7ac943]/10 px-3 py-1 text-[12px] font-semibold text-[#7ac943]">
+                    <ShieldCheck className="h-3.5 w-3.5" /> {f.badgeText}
+                  </span>
                 ) : null}
               </div>
 
-              <h2 className="mt-8 text-5xl font-bold leading-[1.1] tracking-tight md:text-[4rem]">
-                <span className="text-blue-500">{section.title}</span>
-                <br />
-                <span className="text-green-400">{f.headlineLine2}</span>
-              </h2>
+              <h3 className="mt-7 font-display text-5xl font-bold leading-[0.98] tracking-tight sm:text-6xl xl:text-7xl">
+                <span className="block text-[#3d82f6]">{section.title}</span>
+                <span className="block text-[#4ade80]">{f.headlineLine2}</span>
+              </h3>
 
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-300">
-                {section.subtitle}
-              </p>
+              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-white/80">{section.subtitle}</p>
 
-              <div className="mt-10 flex flex-wrap items-center gap-6">
-                <a
-                  href={f.ctaLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full border border-green-400/50 bg-green-500/20 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-green-500/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]"
-                >
-                  {f.ctaText}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
-                <a
-                  href={f.secondaryCtaLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm font-medium text-gray-300 transition-colors hover:text-white"
-                >
-                  {f.secondaryCtaText}
-                </a>
+              <div className="mt-8 flex flex-col items-start gap-4">
+                <SlideToActivate label={f.ctaText || "Activate Your Trading Terminal"} href={f.ctaLink || "#"} />
+                {f.secondaryCtaText ? (
+                  <a
+                    href={f.secondaryCtaLink || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 pl-2 text-sm font-medium text-white/70 transition-colors hover:text-white"
+                  >
+                    {f.secondaryCtaText} <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
               </div>
             </div>
 
-            <div className="relative flex flex-col justify-center">
-              <div className="mb-8 flex flex-wrap gap-2">
-                {[
-                  { id: "benefits", label: "Key Features" },
-                  { id: "howto", label: "How to Join" },
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    onClick={() => setTab(t.id)}
-                    className={cn(
-                      "rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-widest transition-all",
-                      tab === t.id
-                        ? "border border-green-500/50 bg-green-500/20 text-white shadow-[0_0_15px_rgba(74,222,128,0.15)]"
-                        : "border border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white",
-                    )}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {tab === "benefits" ? (
+            {/* Right: 2×2 feature cards */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:min-h-0 lg:grid-rows-2">
+              {features.slice(0, 4).map((feature, i) => {
+                const Icon = getIcon(feature.iconKey);
+                const highlighted = feature.meta === "highlighted" || (i === 0 && !features.some((x) => x.meta === "highlighted"));
+                return (
                   <motion.div
-                    key="benefits"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2"
+                    key={feature.title}
+                    className="min-h-0"
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    {features.map((feature) => {
-                      const Icon = getIcon(feature.iconKey);
-                      const isHigh = feature.meta === "highlighted";
-                      return (
-                        <div
-                          key={feature.title}
-                          className={
-                            isHigh
-                              ? "relative overflow-hidden rounded-2xl border border-white/30 bg-white/20 p-6 shadow-[0_0_30px_rgba(255,255,255,0.05)] backdrop-blur-xl"
-                              : "rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-colors hover:bg-white/20"
-                          }
-                        >
-                          {isHigh && (
-                            <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/10 to-transparent" />
-                          )}
-                          <div
-                            className={
-                              isHigh
-                                ? "relative z-10 mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-green-500/40 bg-green-500/20 shadow-[0_0_20px_rgba(74,222,128,0.2)]"
-                                : "mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5"
-                            }
-                          >
-                            <Icon className="h-5 w-5 text-green-400" />
-                          </div>
-                          <h3 className="relative z-10 mb-2 font-semibold text-white">
-                            {feature.title}
-                          </h3>
-                          <p className="relative z-10 text-sm text-gray-300">{feature.body}</p>
-                        </div>
-                      );
-                    })}
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="howto"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md md:p-8"
-                  >
-                    <div className="mb-8 flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-green-500/40 bg-green-500/20 shadow-[0_0_20px_rgba(74,222,128,0.2)]">
-                        <Lock className="h-6 w-6 text-green-400" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-white">Quick Start Guide</h4>
-                        <p className="text-xs text-gray-400">
-                          Register below to activate your trading access
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-8 sm:grid-cols-3 sm:gap-6">
-                      {steps.map((step, i) => {
-                        const Icon = getIcon(step.iconKey);
-                        return (
-                          <div key={step.title} className="relative text-center">
-                            <div className="relative mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/5 transition-colors hover:bg-white/10">
-                              <Icon className="h-7 w-7 text-green-400" />
-                              <span className="absolute -right-2 -top-2 grid h-7 w-7 place-items-center rounded-full bg-green-500 text-xs font-bold text-black shadow-[0_0_10px_rgba(74,222,128,0.5)]">
-                                {i + 1}
-                              </span>
-                            </div>
-                            <h5 className="font-semibold text-white">{step.title}</h5>
-                            <p className="mt-1 text-xs text-gray-400">{step.body}</p>
-                            {i < steps.length - 1 && (
-                              <ChevronRight className="absolute -right-4.5 top-6 hidden h-5 w-5 text-white/20 sm:block" />
-                            )}
-                          </div>
-                        );
-                      })}
+                    <div
+                      className={cn(
+                        "group flex h-full flex-col rounded-2xl border p-6 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#7ac943]/40",
+                        highlighted ? "border-white/25 bg-white/[0.1]" : "border-white/[0.09] bg-white/[0.04]",
+                      )}
+                    >
+                      <span className="grid size-11 place-items-center rounded-xl border border-white/10 bg-black/30 text-[#4ade80]">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <p className="mt-auto pt-5 text-[16px] font-semibold text-white">{feature.title}</p>
+                      <p className="mt-2 text-[14px] leading-relaxed text-white/70">{feature.body}</p>
                     </div>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                );
+              })}
             </div>
           </div>
 
-          {stats.length > 0 && (
-            <div className="relative z-20 mt-12 overflow-hidden rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md">
-              <div className="grid gap-4 px-6 py-5 sm:grid-cols-2 lg:grid-cols-6 lg:px-10">
-                {stats.map((stat, index) => (
+          {/* Stat strip */}
+          {stats.length > 0 ? (
+            <div className="relative px-6 sm:px-8 lg:px-10">
+              <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/[0.09] bg-black/40 p-3 backdrop-blur-xl sm:grid-cols-3 sm:p-4 lg:grid-cols-6">
+                {stats.map((stat, i) => (
                   <div
                     key={stat.label}
-                    className={cn(
-                      "rounded-2xl border border-white/10 px-4 py-3",
-                      index === stats.length - 1
-                        ? "bg-green-500/10 text-green-300"
-                        : "bg-white/5 text-gray-200",
-                    )}
+                    className="rounded-xl border border-white/[0.09] bg-white/[0.04] px-4 py-3.5 backdrop-blur-xl"
                   >
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/55">
-                      {stat.label}
-                    </div>
-                    <div className="mt-2 text-xl font-semibold">{stat.value}</div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">{stat.label}</p>
+                    <p
+                      className={cn(
+                        "mt-1.5 font-display text-[17px] font-semibold leading-snug",
+                        i === stats.length - 1 ? "text-[#4ade80]" : "text-white",
+                      )}
+                    >
+                      {stat.value}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
+          ) : null}
+
+          {disclaimers.length ? (
+            <div className="relative flex flex-col gap-1 px-6 py-4 text-[11px] leading-relaxed text-white/50 sm:px-8 lg:flex-row lg:flex-wrap lg:gap-x-4 lg:px-10">
+              {disclaimers.map((d, i) => (
+                <span key={i} className={i === disclaimers.length - 1 && disclaimers.length > 1 ? "text-white/35" : undefined}>
+                  {d}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className="h-6" />
           )}
         </div>
       </div>

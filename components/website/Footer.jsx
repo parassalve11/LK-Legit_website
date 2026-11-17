@@ -1,16 +1,7 @@
-import { getIcon } from "@/components/common/icons";
 import { FOOTER_COLUMNS } from "@/lib/defaults";
 import HeroCoin from "./HeroCoin";
 
-const SOCIAL_ICON = {
-  youtube: "youtube",
-  instagram: "instagram",
-  telegram: "send",
-  twitter: "star",
-  whatsapp: "message-circle",
-};
-
-export default function Footer({ settings, socials, logoUrl = "/Logo.png" }) {
+export default function Footer({ settings, logoUrl = "/Logo.png" }) {
   const [first, ...rest] = settings.siteName.split(" ").reverse();
   const leading = rest.reverse().join(" ");
 
@@ -36,23 +27,6 @@ export default function Footer({ settings, socials, logoUrl = "/Logo.png" }) {
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-[#c9c4b8]">
             {settings.footerText}
           </p>
-          <div className="mt-5 flex gap-3">
-            {socials.map((s) => {
-              const Icon = getIcon(SOCIAL_ICON[s.platform] || "globe");
-              return (
-                <a
-                  key={s.platform}
-                  href={s.url || "#"}
-                  aria-label={s.platform}
-                  target={s.url?.startsWith("http") ? "_blank" : undefined}
-                  rel={s.url?.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-[rgba(212,175,55,0.35)] text-[#f5c451] hover:bg-[rgba(245,196,81,0.08)]"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              );
-            })}
-          </div>
         </div>
 
         {FOOTER_COLUMNS.map((col) => (
