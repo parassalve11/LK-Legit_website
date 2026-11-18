@@ -67,7 +67,7 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#050505] text-[#f2f0eb]">
+    <div className="relative min-h-screen bg-[#050505] text-[#f2f0eb]" style={{ overflowX: "clip" }}>
       <Header nav={c.nav} siteName={c.settings.siteName} />
       <main>
         {c.sectionOrder.map((key) => {
@@ -78,8 +78,8 @@ export default async function HomePage() {
       <Footer settings={c.settings} socials={c.socials} />
       <WelcomePoster
         siteName={c.settings.siteName}
-        communityHref={c.sectionOrder.includes("contact") ? "#contact" : channelHref}
-        lessonsHref={c.sectionOrder.includes("videos") ? "#videos" : channelHref}
+        channelHref={channelHref}
+        liveHref={`${channelHref.replace(/\/+$/, "")}/live`}
       />
     </div>
   );

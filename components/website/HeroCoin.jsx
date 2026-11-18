@@ -11,14 +11,14 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import CoinSparks from "./CoinSparks";
 
 // ============================================================
 // HeroCoin — the LK55 coin revolving on its rock podium.
 //
-// CSS 3D transforms rather than WebGL, so the original render
-// (raised relief, bevels, baked lighting) survives intact; a
-// textured cylinder would flatten all of that away. Front face,
-// back face and a milled rim live in one preserve-3d context.
+// Circular, embossed gold faces and a milled rim share one CSS 3D
+// context. Each face has a reflection driven by its rotation so
+// the gold catches the light during automatic and manual spins.
 //
 // drive="auto"   — revolves continuously; scrolling does not touch it.
 // drive="scroll" — angle follows scroll as the coin comes into view.
@@ -47,7 +47,7 @@ function reedGradient(panelWidth) {
 }
 
 export default function HeroCoin({
-  src = "/coin-face.png",
+  src = "/coin-face-gold.webp",
   platform,
   drive = "auto",
   scrollSpin = 360,
@@ -55,6 +55,7 @@ export default function HeroCoin({
 }) {
   const root = useRef(null);
   const stage = useRef(null);
+  const sparks = useRef(null);
   const [diameter, setDiameter] = useState(0);
   const reduced = useReducedMotion();
 
@@ -126,9 +127,7 @@ export default function HeroCoin({
   const rotateX = useTransform([pitch], ([p]) => -2.5 + p);
 
   const facing = useTransform(rotateY, (deg) => Math.abs(Math.cos((deg * Math.PI) / 180)));
-  const faceBrightness = useTransform(facing, (f) => `brightness(${0.72 + f * 0.28})`);
-  // Hide the face near edge-on, or it shows as a dark sliver over the rim.
-  const faceOpacity = useTransform(facing, [0, 0.07, 0.2], [0, 0, 1]);
+  const faceBrightness = useTransform(facing, (f) => `brightness(${0.9 + f * 0.1})`);
   const glowOpacity = useTransform(facing, [0, 1], [0.3, 0.72]);
   const contactScale = useTransform(facing, [0, 1], [0.5, 1]);
   const contactOpacity = useTransform(facing, [0, 1], [0.45, 0.85]);
@@ -145,6 +144,7 @@ export default function HeroCoin({
   };
 
   const onPointerMove = (e) => {
+    if (reduced) return;
     const r = e.currentTarget.getBoundingClientRect();
     pointerPitch.set((((e.clientY - r.top) / r.height) * 2 - 1) * -10);
     if (!dragging.current) return;
@@ -153,6 +153,12 @@ export default function HeroCoin({
     dragOffset.current += dx * DRAG_GAIN;
     angle.set(angle.get() + dx * DRAG_GAIN);
     speed.current = (dx * DRAG_GAIN * 1000) / dt;
+    sparks.current?.emit({
+      deltaX: dx,
+      velocity: speed.current,
+      rotation: angle.get(),
+      offsetY: bob.get(),
+    });
     lastX.current = e.clientX;
     lastT.current = e.timeStamp;
   };
@@ -207,7 +213,7 @@ export default function HeroCoin({
         )}
 
         <div
-          className="absolute touch-none"
+          className="absolute touch-none cursor-grab active:cursor-grabbing motion-reduce:cursor-default motion-reduce:active:cursor-default"
           style={{
             width: platform ? `${COIN_SCALE * 100}%` : "100%",
             left: "50%",
@@ -215,7 +221,6 @@ export default function HeroCoin({
             transform: platform ? "translate(-50%, -100%)" : "translate(-50%, -50%)",
             perspective: 1600,
             perspectiveOrigin: "50% 55%",
-            cursor: reduced ? "default" : "grab",
           }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -265,7 +270,7 @@ export default function HeroCoin({
                           height: thickness,
                           marginLeft: -panelWidth / 2,
                           marginTop: -thickness / 2,
-                          transform: `rotateY(${a}deg) translateZ(${radius + 1}px)`,
+                          transform: `rotateY(${a}deg) translateZ(${radius}px)`,
                           backgroundImage: `linear-gradient(180deg, rgba(255,248,225,0.5), rgba(255,255,255,0) 30%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.42)), ${reedGradient(panelWidth)}`,
                           filter: `brightness(${shade.toFixed(3)})`,
                         }}
@@ -274,9 +279,10 @@ export default function HeroCoin({
                   })}
               </div>
 
-              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} opacity={faceOpacity} />
-              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} opacity={faceOpacity} back />
+              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} angle={angle} />
+              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} angle={angle} back />
             </motion.div>
+            <CoinSparks ref={sparks} diameter={diameter} reduced={reduced} />
           </div>
 
           {platform && (
@@ -297,16 +303,24 @@ export default function HeroCoin({
   );
 }
 
-function CoinFace({ src, z, brightness, opacity, back = false }) {
+function CoinFace({ src, z, brightness, angle, back = false }) {
+  // Offset the reverse face's lighting by half a turn. This keeps the light
+  // moving across the visible metal in the same direction on either side.
+  const reflection = useTransform(angle, (degrees) => {
+    const phase = ((degrees + (back ? 180 : 0)) * Math.PI) / 180;
+    const center = 50 + Math.sin(phase) * 48;
+    return `linear-gradient(110deg, transparent ${center - 30}%, rgba(255,239,181,0.08) ${center - 16}%, rgba(255,250,221,0.3) ${center}%, rgba(255,239,181,0.08) ${center + 16}%, transparent ${center + 30}%)`;
+  });
+
   return (
     <motion.div
-      className="absolute inset-0"
+      className="absolute inset-0 overflow-hidden rounded-full"
       style={{
         transform: `translateZ(${back ? -z : z}px)${back ? " rotateY(180deg)" : ""}`,
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
         filter: brightness,
-        opacity,
+        backgroundColor: "#dcae47",
       }}
     >
       <img
@@ -314,23 +328,19 @@ function CoinFace({ src, z, brightness, opacity, back = false }) {
         alt={back ? "" : "LK55 Level King gold coin"}
         aria-hidden={back || undefined}
         draggable={false}
-        className="h-full w-full select-none"
+        className="block h-full w-full select-none rounded-full"
       />
-      {/* Fixed specular sweep — sells the metal as it turns. */}
-      <div
+      <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full mix-blend-screen"
-        style={{
-          background:
-            "linear-gradient(112deg, transparent 26%, rgba(255,240,200,0.16) 42%, rgba(255,255,255,0.24) 50%, rgba(255,240,200,0.14) 58%, transparent 74%)",
-        }}
+        style={{ background: reflection }}
       />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full"
         style={{
           boxShadow:
-            "inset 0 0 22px rgba(255,225,150,0.28), inset 0 6px 18px rgba(255,255,255,0.16), inset 0 -10px 26px rgba(0,0,0,0.42)",
+            "inset 0 0 0 1px rgba(255,236,167,0.7), inset 0 2px 4px rgba(255,249,213,0.28), inset 0 -2px 5px rgba(113,67,7,0.24)",
         }}
       />
     </motion.div>

@@ -52,7 +52,7 @@ export default function Footer({ settings, logoUrl = "/Logo.png" }) {
 
       {/* Brand coin — turns with the scroll as the footer comes into view. */}
       <div className="mx-auto mt-14 flex max-w-7xl justify-center px-4 sm:px-6">
-        <HeroCoin src="/coin-face.png" drive="scroll" scrollSpin={540} className="w-[132px] sm:w-[156px]" />
+        <HeroCoin drive="scroll" scrollSpin={540} className="w-[132px] sm:w-[156px]" />
       </div>
 
       <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6">

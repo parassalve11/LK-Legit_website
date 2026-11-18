@@ -74,7 +74,7 @@ export default function Hero({ section, checks, stats, settings }) {
                   "radial-gradient(circle at 50% 40%, rgba(245,196,81,0.4), rgba(212,175,55,0.14) 40%, transparent 70%)",
               }}
             />
-            <HeroCoin src="/coin-face.png" platform="/Platfrom.png" drive="auto" />
+            <HeroCoin platform="/Platfrom.png" drive="auto" />
           </div>
         </Reveal>
       </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { ArrowRight, Check, Play, Sparkles, X } from "lucide-react";
+import { ChevronRight, Radio, X, Youtube } from "lucide-react";
 import styles from "./WelcomePoster.module.css";
 
 const SESSION_KEY = "lk55-welcome-poster-seen";
@@ -11,8 +11,9 @@ const linkProps = (href) =>
 
 export default function WelcomePoster({
   siteName = "Trade with LK55",
-  communityHref = "#contact",
-  lessonsHref = "#videos",
+  channelHandle = "@TradewithLK55",
+  channelHref = "https://www.youtube.com/@TradewithLK55",
+  liveHref = "https://www.youtube.com/@TradewithLK55/live",
 }) {
   const dialogRef = useRef(null);
   const restorePageRef = useRef(() => {});
@@ -148,74 +149,68 @@ export default function WelcomePoster({
             event.clientY < rect.top || event.clientY > rect.bottom) dismiss();
       }}
     >
-      <div className={styles.topbar}>
-        <div className={styles.brand}>
-          <Image src="/Logo.png" alt="" width={36} height={36} />
-          <span>{siteName}</span>
-        </div>
-        <span className={styles.welcomeLabel}>A better place to begin</span>
-        <button type="button" onClick={dismiss} className={styles.close} aria-label="Close welcome poster">
-          <X size={20} aria-hidden="true" />
-        </button>
-      </div>
+      <button type="button" onClick={dismiss} className={styles.close} aria-label="Close">
+        <X size={16} aria-hidden="true" />
+      </button>
+
+      <a href={channelHref} {...linkProps(channelHref)} className={styles.site}>
+        <span className={styles.siteBar} aria-hidden="true" />
+        youtube.com/<strong>{channelHandle}</strong>
+      </a>
 
       <div className={styles.body}>
         <div className={styles.visual}>
-          <div className={styles.arch} aria-hidden="true">
-            <svg viewBox="0 0 300 360" fill="none" preserveAspectRatio="none">
-              <path d="M0 280 45 235 80 252 126 173 165 195 215 108 250 127 300 38" />
-              <path d="M0 320 45 275 80 292 126 213 165 235 215 148 250 167 300 78" />
-            </svg>
-          </div>
+          <span className={styles.shapeBack} aria-hidden="true" />
+          <span className={styles.shape} aria-hidden="true" />
           <Image
-            src="/images/lk-mentor-thumbnail.webp"
-            alt="LK in his patterned shirt, with his arms crossed"
+            src="/images/lk-mentor-cutout-bw.webp"
+            alt="LK, your trading mentor"
             width={1122}
             height={1402}
-            sizes="(max-width: 639px) 44vw, 380px"
+            sizes="(max-width: 639px) 45vw, 210px"
             loading="eager"
             className={styles.portrait}
           />
-          <div className={styles.nameplate}>
-            <strong>LK</strong>
-            <span>Trader. Educator. Your mentor.</span>
-          </div>
         </div>
 
         <div className={styles.copy}>
-          <p className={styles.eyebrow}>Welcome to your next chapter</p>
+          <span className={styles.pill}>
+            <span className={styles.liveDot} aria-hidden="true" /> Daily Livestream
+          </span>
           <h2 id="welcome-poster-title" className={styles.headline}>
-            Less guessing.<br />More <span>clarity.</span>
+            Trade the <br />markets <b>live</b> <br /><b>with <em>LK!</em></b>
           </h2>
           <p id="welcome-poster-description" className={styles.description}>
-            Learn to read the charts, understand the risk and build a process you can trust.
+            Join every trading day on YouTube for <b>real charts, real setups.</b>
           </p>
-          <ul className={styles.benefits}>
-            {["Live chart breakdowns", "Risk-first learning", "A community to grow with"].map((item) => (
-              <li key={item}><Check size={15} aria-hidden="true" />{item}</li>
-            ))}
-          </ul>
-          <p className={styles.signoff}>Learn with <strong>LK.</strong> Grow at your pace.</p>
         </div>
       </div>
 
       <div className={styles.message}>
-        <span className={styles.messageIcon}><Sparkles size={23} aria-hidden="true" /></span>
-        <div>
-          <p>Start with the process. <strong>The confidence follows.</strong></p>
-          <span>Learn. Analyze. Execute.</span>
-        </div>
+        <span className={styles.messageIcon} aria-hidden="true"><ChevronRight size={22} strokeWidth={3} /></span>
+        <p>Your trading growth starts with <b>watching it live.</b></p>
+      </div>
+
+      <div className={styles.actions}>
+        <a href={liveHref} {...linkProps(liveHref)} onClick={dismiss} className={styles.primary}>
+          <Youtube size={17} aria-hidden="true" /> Watch <b>Live</b>
+        </a>
+        <button type="button" onClick={dismiss} className={styles.skip}>Maybe later</button>
       </div>
 
       <div className={styles.footer}>
-        <a href={communityHref} {...linkProps(communityHref)} onClick={dismiss} className={styles.primary}>
-          Join the community <ArrowRight size={17} aria-hidden="true" />
-        </a>
-        <a href={lessonsHref} {...linkProps(lessonsHref)} onClick={dismiss} className={styles.secondary}>
-          <Play size={15} aria-hidden="true" /> Explore free lessons
-        </a>
-        <button type="button" onClick={dismiss} className={styles.skip}>I’ll explore first</button>
+        <span className={styles.logo}>
+          <Image src="/Logo.png" alt="" width={22} height={22} /> {siteName}
+        </span>
+        <span className={styles.divider} aria-hidden="true" />
+        <span className={styles.meta}>
+          <Radio size={16} aria-hidden="true" />
+          <span><small>Live on YouTube</small>Every trading day</span>
+        </span>
       </div>
+      <p className={styles.fine}>
+        Educational content only, not financial advice. Trading involves risk.
+      </p>
     </dialog>
   );
 }

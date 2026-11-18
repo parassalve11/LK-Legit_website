@@ -24,7 +24,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${cinzel.variable} ${inter.variable} antialiased`}>
-      <body className="min-h-screen overflow-x-hidden bg-[#050505] text-[#f2f0eb]">
+      <body className="min-h-screen bg-[#050505] text-[#f2f0eb]" style={{ overflowX: "clip" }}>
         {children}
       </body>
     </html>
