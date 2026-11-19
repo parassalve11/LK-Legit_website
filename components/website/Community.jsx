@@ -4,7 +4,7 @@ import { Reveal, SectionHeader, CandlestickBackdrop } from "@/components/common/
 
 export default function Community({ section, links }) {
   return (
-    <section className="relative py-24">
+    <section id="community" className="relative scroll-mt-24 py-24">
       <SectionHeader eyebrow={section.eyebrow} title={section.title} gold={section.subtitle} />
       <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-6 px-4 sm:px-6 sm:grid-cols-2 lg:grid-cols-4">
         {links.map((c, i) => {

@@ -412,3 +412,6 @@ html.lenis body { height: auto; }
     backdrop-filter: none !important;
   }
 }
+
+/* ByteFX redirect loader progress bar (components/website/BrokerRedirectLink.jsx) */
+@keyframes bytefx-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
