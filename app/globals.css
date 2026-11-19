@@ -13,7 +13,7 @@
   --color-gold-deep: var(--gold-deep);
   --color-market-up: var(--market-up);
   --color-market-down: var(--market-down);
-  --font-display: var(--font-cinzel), serif;
+  --font-display: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 

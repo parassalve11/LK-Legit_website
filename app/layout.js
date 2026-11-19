@@ -1,8 +1,8 @@
-import { Cinzel, Inter } from "next/font/google";
+import { Sora, Inter } from "next/font/google";
 import "./globals.css";
 
-const cinzel = Cinzel({
-  variable: "--font-cinzel",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
   display: "swap",
@@ -23,7 +23,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${cinzel.variable} ${inter.variable} antialiased`}>
+    <html lang="en" className={`${sora.variable} ${inter.variable} antialiased`}>
       <body className="min-h-screen bg-[#050505] text-[#f2f0eb]" style={{ overflowX: "clip" }}>
         {children}
       </body>
