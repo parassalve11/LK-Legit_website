@@ -1,6 +1,21 @@
 import { getIcon } from "@/components/common/icons";
 import { Reveal, CountUp, GoldButton, GhostGoldButton } from "@/components/common/Primitives";
-import { Play, Youtube } from "lucide-react";
+import { BadgeCheck, Play, Youtube } from "lucide-react";
+
+const DEFAULT_CREDENTIAL = "NISM Certified · Verified Trader";
+
+// Admin copy can bold words by wrapping them in **double asterisks**.
+function withBold(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
+      <strong key={i} className="font-semibold text-[#f2f0eb]">
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      part
+    ),
+  );
+}
 
 const linkProps = (href) =>
   /^https?:\/\//.test(href || "") ? { target: "_blank", rel: "noopener noreferrer" } : {};
@@ -15,6 +30,8 @@ export default function LearnFromLK({ section, stats }) {
     imageUrl === "/images/lk-mentor-casual-smile.webp" ||
     imageUrl.startsWith("https://images.unsplash.com/photo-1642790106117-e829e14a795f");
   const portraitAlt = "LK in a pale green patterned shirt with his arms crossed";
+  // Older databases have no credential field yet; show the default until set.
+  const credential = (f.credentialBadge ?? DEFAULT_CREDENTIAL).trim();
 
   return (
     <section id="learn" className="relative overflow-hidden bg-[#050505] py-24">
@@ -29,14 +46,24 @@ export default function LearnFromLK({ section, stats }) {
               {section.title} <span className="text-gold-gradient">{section.subtitle}</span>
             </h2>
           </Reveal>
+          {credential ? (
+            <Reveal delay={0.08}>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[rgba(245,196,81,0.45)] bg-[rgba(245,196,81,0.08)] px-4 py-2">
+                <BadgeCheck className="h-5 w-5 shrink-0 text-[#f5c451]" strokeWidth={2.4} />
+                <span className="text-sm font-extrabold uppercase tracking-[0.12em] text-[#f5c451]">
+                  {credential}
+                </span>
+              </div>
+            </Reveal>
+          ) : null}
           {f.paragraph1 ? (
             <Reveal delay={0.12}>
-              <p className="mt-6 text-[15px] leading-relaxed text-[#c9c4b8]">{f.paragraph1}</p>
+              <p className="mt-6 text-[15px] leading-relaxed text-[#c9c4b8]">{withBold(f.paragraph1)}</p>
             </Reveal>
           ) : null}
           {f.paragraph2 ? (
             <Reveal delay={0.18}>
-              <p className="mt-4 text-[15px] leading-relaxed text-[#c9c4b8]">{f.paragraph2}</p>
+              <p className="mt-4 text-[15px] leading-relaxed text-[#c9c4b8]">{withBold(f.paragraph2)}</p>
             </Reveal>
           ) : null}
 
