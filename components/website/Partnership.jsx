@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { ArrowRight, ChevronRight, getIcon } from "@/components/common/icons";
@@ -10,12 +11,109 @@ import { cn } from "@/lib/utils";
 const KNOB = 44;
 const PAD = 4;
 
+const LOADER_MS = 3500;
+const LOADER_STEPS = [
+  "Connecting to ByteFX…",
+  "Securing your session…",
+  "Taking you to ByteFX secure registration…",
+];
+
+// Opens the broker link once the loader finishes. Browsers only allow a new
+// tab shortly after a click (Safari allows about a second), so if the tab is
+// blocked the same tab navigates instead and the visitor always lands there.
+function openBroker(href) {
+  const tab = window.open(href, "_blank");
+  if (tab) tab.opener = null;
+  else window.location.assign(href);
+}
+
+// Full-screen white ByteFX loading screen shown for ~3.5s before redirecting.
+function ActivationLoader({ href, onCancel }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const stepTimer = setInterval(
+      () => setStep((n) => Math.min(n + 1, LOADER_STEPS.length - 1)),
+      LOADER_MS / LOADER_STEPS.length,
+    );
+    const done = setTimeout(() => {
+      openBroker(href);
+      onCancel();
+    }, LOADER_MS);
+    const onKey = (e) => e.key === "Escape" && onCancel();
+    window.addEventListener("keydown", onKey);
+    // Keep the page underneath from scrolling while the screen is up.
+    const { overflow } = document.documentElement.style;
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      clearInterval(stepTimer);
+      clearTimeout(done);
+      window.removeEventListener("keydown", onKey);
+      document.documentElement.style.overflow = overflow;
+    };
+  }, [href, onCancel]);
+
+  return (
+    <motion.div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bytefx-loader-title"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white px-6 text-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.img
+        src="/bytefx.png"
+        alt="ByteFX"
+        className="h-14 w-auto object-contain md:h-20"
+        initial={{ opacity: 0, y: 12, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.1, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+      />
+
+      <motion.h3
+        id="bytefx-loader-title"
+        className="mt-8 max-w-2xl font-sans text-3xl font-extrabold leading-tight tracking-tight text-[#1f5fd6] md:text-5xl"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        Activating your <span className="text-[#4caf2a]">ByteFX</span> trading terminal
+      </motion.h3>
+
+      <p aria-live="polite" className="mt-5 h-5 text-sm font-medium text-gray-500">
+        {LOADER_STEPS[step]}
+      </p>
+
+      <div className="mt-6 h-1 w-48 overflow-hidden rounded-full bg-gray-200 md:w-64">
+        <motion.div
+          className="h-full origin-left rounded-full bg-linear-to-r from-[#1f5fd6] to-[#7ac943]"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: LOADER_MS / 1000, ease: "easeInOut" }}
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={onCancel}
+        className="mt-10 text-xs font-semibold text-gray-400 underline underline-offset-4 transition hover:text-gray-700"
+      >
+        Cancel
+      </button>
+    </motion.div>
+  );
+}
+
 // "Slide to activate" button. Drag the knob to the end (or press Enter /
-// Space when focused) to open the broker registration link in a new tab.
+// Space when focused) to show the ByteFX loader, then open the registration link.
 function SlideToActivate({ label, href }) {
   const trackRef = useRef(null);
   const x = useMotionValue(0);
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const closeLoader = useCallback(() => setLoading(false), []);
 
   const maxX = () => (trackRef.current ? trackRef.current.offsetWidth - KNOB - PAD * 2 : 0);
   const fillWidth = useTransform(x, (v) => v + KNOB);
@@ -25,11 +123,11 @@ function SlideToActivate({ label, href }) {
     if (done) return;
     setDone(true);
     animate(x, maxX(), { type: "spring", stiffness: 400, damping: 35 });
-    window.open(href, "_blank", "noopener,noreferrer");
+    setLoading(true);
     setTimeout(() => {
       animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
       setDone(false);
-    }, 1200);
+    }, LOADER_MS + 400);
   };
 
   const onDragEnd = () => {
@@ -81,6 +179,10 @@ function SlideToActivate({ label, href }) {
       >
         <ArrowRight className="h-5 w-5" />
       </motion.div>
+
+      {/* Portalled to <body>: the section's reveal animations use transforms,
+          which would otherwise trap a fixed overlay inside the card. */}
+      {loading && createPortal(<ActivationLoader href={href} onCancel={closeLoader} />, document.body)}
     </div>
   );
 }

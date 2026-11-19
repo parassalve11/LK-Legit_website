@@ -16,8 +16,9 @@ export default function LearnFromLK({ section, stats }) {
   const useMentorPortrait = !imageUrl ||
     imageUrl === "/images/lk-mentor-gold-glasses.webp" ||
     imageUrl === "/images/lk-mentor-casual-smile.webp" ||
+    imageUrl === "/images/lk-mentor-thumbnail.webp" ||
     imageUrl.startsWith("https://images.unsplash.com/photo-1642790106117-e829e14a795f");
-  const portraitAlt = "LK in a pale green patterned shirt with his arms crossed";
+  const portraitAlt = "LK smiling in round glasses and a pastel knit polo";
   // Older databases have no credential field yet; show the default until set.
   const credential = (f.credentialBadge ?? DEFAULT_CREDENTIAL).trim();
 
@@ -100,18 +101,25 @@ export default function LearnFromLK({ section, stats }) {
         </div>
 
         <Reveal delay={0.15}>
-          <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
-            <div className="relative overflow-hidden">
+          <div className="relative mx-auto w-full max-w-md lg:mr-0 lg:max-w-[480px]">
+            {/* Soft gold halo behind the frame */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-[radial-gradient(closest-side,rgba(245,196,81,0.18),transparent)]"
+            />
+            {/* The photo is tall (3:4), so it is cropped to 4:5 and anchored near
+                the top: face to waist stays in frame, the floor is trimmed. */}
+            <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(245,196,81,0.35)] bg-[#0d0b07] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9),0_0_0_6px_rgba(245,196,81,0.06)]">
               <img
-                src={useMentorPortrait ? "/images/lk-mentor-thumbnail.webp" : imageUrl}
+                src={useMentorPortrait ? "/images/lk-mentor-portrait.webp" : imageUrl}
                 alt={useMentorPortrait ? portraitAlt : f.imageAlt || portraitAlt}
-                width={1122}
-                height={1402}
+                width={1000}
+                height={1333}
                 loading="lazy"
                 decoding="async"
-                className="aspect-[4/5] w-full object-contain object-top"
+                className="aspect-[4/5] w-full object-cover object-[50%_18%]"
               />
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-[#050505] to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
             </div>
 
             <a
