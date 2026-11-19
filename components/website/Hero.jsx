@@ -7,10 +7,15 @@ import {
   GoldSparks,
 } from "@/components/common/Primitives";
 import HeroCoin from "./HeroCoin";
+import { withBold } from "@/components/common/RichText";
+
+const DEFAULT_CREDENTIAL = "NISM Certified Research Analyst";
 
 export default function Hero({ section, checks, stats, settings }) {
   const f = section.fields || {};
   const [line1, line2, line3] = (section.title || "").split("|");
+  // Older databases have no credential field yet; show the default until set.
+  const credential = (f.credential ?? DEFAULT_CREDENTIAL).trim();
 
   return (
     <section
@@ -36,7 +41,12 @@ export default function Hero({ section, checks, stats, settings }) {
           </Reveal>
           <Reveal delay={0.15}>
             <p className="mt-6 max-w-lg text-[15px] leading-relaxed text-[#c9c4b8]">
-              {section.subtitle}
+              {credential ? (
+                <>
+                  <strong className="font-bold text-[#f5c451]">{credential}.</strong>{" "}
+                </>
+              ) : null}
+              {withBold(section.subtitle)}
             </p>
           </Reveal>
           <Reveal delay={0.25}>

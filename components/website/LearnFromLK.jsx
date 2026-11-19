@@ -1,21 +1,9 @@
 import { getIcon } from "@/components/common/icons";
 import { Reveal, CountUp, GoldButton, GhostGoldButton } from "@/components/common/Primitives";
 import { BadgeCheck, Play, Youtube } from "lucide-react";
+import { withBold } from "@/components/common/RichText";
 
 const DEFAULT_CREDENTIAL = "NISM Certified · Verified Trader";
-
-// Admin copy can bold words by wrapping them in **double asterisks**.
-function withBold(text) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
-      <strong key={i} className="font-semibold text-[#f2f0eb]">
-        {part.slice(2, -2)}
-      </strong>
-    ) : (
-      part
-    ),
-  );
-}
 
 const linkProps = (href) =>
   /^https?:\/\//.test(href || "") ? { target: "_blank", rel: "noopener noreferrer" } : {};
