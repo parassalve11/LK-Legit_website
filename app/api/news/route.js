@@ -48,7 +48,7 @@ async function fromGoogleNews(tab) {
 
   const res = await fetch(url, {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; TradeWithLK55/1.0)" },
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; TradeWithLK/1.0)" },
     next: { revalidate },
   });
   if (!res.ok) throw new Error(`Google News responded ${res.status}`);
@@ -103,7 +103,8 @@ async function fromFinnhub(tab, key) {
     excerpt:
       item.summary?.length > 90 ? `${item.summary.slice(0, 90)}...` : item.summary || "",
     src: item.source || "Finnhub",
-    img: item.image || imageFor(tab, i),
+    // Always the curated Unsplash artwork, so every card matches the design.
+    img: imageFor(tab, i),
     url: item.url,
   }));
 }

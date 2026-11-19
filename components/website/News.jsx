@@ -19,7 +19,7 @@ export default function News({ section }) {
     fetch(`/api/news?tab=${encodeURIComponent(tab)}`)
       .then((r) => r.json())
       .then((data) => {
-        // Each tab falls back to its own category, never to Market Updates.
+        // Each tab falls back to its own category, never to another tab.
         if (!cancelled) setArticles(data.articles?.length ? data.articles : sampleFor(tab));
       })
       .catch(() => {

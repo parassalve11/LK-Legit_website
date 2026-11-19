@@ -52,7 +52,7 @@ model Media {
 
 model SiteSettings {
   id              Int     @id @default(1)
-  siteName        String  @default("Trade with LK55")
+  siteName        String  @default("Trade with LK")
   tagline         String  @default("Learn. Analyze. Execute.")
   logoId          Int?
   faviconId       Int?
@@ -61,7 +61,7 @@ model SiteSettings {
   whatsapp        String  @default("")
   address         String  @default("India · Worldwide Community")
   footerText      String  @db.Text
-  copyright       String  @default("© 2026 Trade with LK55. All rights reserved.")
+  copyright       String  @default("© 2026 Trade with LK. All rights reserved.")
   disclaimer      String  @db.Text
   maintenanceMode Boolean @default(false)
 

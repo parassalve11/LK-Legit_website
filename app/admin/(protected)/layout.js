@@ -4,7 +4,7 @@ import { logout } from "@/app/admin/login/actions";
 import Sidebar from "@/components/admin/Sidebar";
 
 export const metadata = {
-  title: "Admin — Trade with LK55",
+  title: "Admin — Trade with LK",
   robots: { index: false, follow: false },
 };
 

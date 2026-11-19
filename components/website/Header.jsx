@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 // The broker partner link is highlighted in ByteFX green on every screen size.
 const isPartner = (n) => n.anchor === "#partner" || /partner/i.test(n.label);
 
-export default function Header({ nav, siteName = "Trade with LK55", logoUrl = "/Logo.png" }) {
+export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Logo.png" }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(nav?.[0]?.label || "Home");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Mail, MapPin, Phone, ArrowRight, Loader2 } from "@/components/common/icons";
+import { MapPin, Phone, ArrowRight, Loader2 } from "@/components/common/icons";
 import SocialIcon, { BRAND, brandKey } from "@/components/common/SocialIcon";
 import { Reveal, SectionHeader, GoldButton } from "@/components/common/Primitives";
 import { submitContact } from "@/app/(website)/actions";
@@ -103,12 +103,16 @@ export default function Contact({ section, settings, socials, logoUrl = "/Logo.p
               <h3 className="font-display text-2xl font-bold text-[#f2f0eb]">{f.panelTitle}</h3>
               <p className="mt-2 text-sm text-[#c9c4b8]">{f.panelSubtitle}</p>
               <ul className="mt-6 space-y-3 text-sm text-[#e6e2d6]">
-                <li className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-[#f5c451]" /> {settings.email}
-                </li>
-                <li className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-[#f5c451]" /> {settings.phone}
-                </li>
+                {settings.phone ? (
+                  <li>
+                    <a
+                      href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}
+                      className="flex items-center gap-3 transition hover:text-[#f5c451]"
+                    >
+                      <Phone className="h-4 w-4 text-[#f5c451]" /> {settings.phone}
+                    </a>
+                  </li>
+                ) : null}
                 <li className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-[#f5c451]" /> {settings.address}
                 </li>

@@ -10,7 +10,7 @@ const linkProps = (href) =>
   /^https?:\/\//.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
 export default function WelcomePoster({
-  siteName = "Trade with LK55",
+  siteName = "Trade with LK",
   channelHandle = "@TradewithLK55",
   channelHref = "https://www.youtube.com/@TradewithLK55",
   liveHref = "https://www.youtube.com/@TradewithLK55/live",

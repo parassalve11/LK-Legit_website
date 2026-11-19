@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Trade with LK55 — Master the Markets with LK",
+  title: "Trade with LK — Master the Markets with LK",
   description:
     "Premium educational trading content for Indian stock, options, gold and crypto traders. Learn. Analyze. Execute. Repeat.",
 };

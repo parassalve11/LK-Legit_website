@@ -39,7 +39,7 @@ const GROUPS = [
   },
 ];
 
-export default function Sidebar({ siteName = "Trade with LK55" }) {
+export default function Sidebar({ siteName = "Trade with LK" }) {
   const pathname = usePathname();
 
   return (

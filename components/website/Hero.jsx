@@ -65,7 +65,9 @@ export default function Hero({ section, checks, stats, settings }) {
         </div>
 
         <Reveal delay={0.2} y={0}>
-          <div className="relative mx-auto w-full max-w-[680px] lg:-mr-8 lg:-mt-6 xl:-mr-16">
+          {/* Coin on its own, no podium. Sized so it reads clearly without
+              crowding the headline: ~70% of a phone width, up to 440px on desktop. */}
+          <div className="relative mx-auto w-[72%] max-w-[300px] py-6 sm:max-w-[360px] lg:w-[80%] lg:max-w-[440px] lg:py-10">
             <div
               aria-hidden
               className="absolute inset-[-18%] -z-20 opacity-80"
@@ -74,7 +76,7 @@ export default function Hero({ section, checks, stats, settings }) {
                   "radial-gradient(circle at 50% 40%, rgba(245,196,81,0.26), rgba(212,175,55,0.1) 35%, rgba(212,175,55,0.03) 55%, transparent 70%)",
               }}
             />
-            <HeroCoin platform="/Platfrom.webp" drive="auto" />
+            <HeroCoin drive="auto" shadow />
           </div>
         </Reveal>
       </div>

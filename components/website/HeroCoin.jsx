@@ -14,7 +14,7 @@ import {
 import CoinSparks from "./CoinSparks";
 
 // ============================================================
-// HeroCoin — the LK55 coin revolving on its rock podium.
+// HeroCoin — the LK coin revolving on its rock podium.
 //
 // Circular, embossed gold faces and a milled rim share one CSS 3D
 // context. Each face has a reflection driven by its rotation so
@@ -53,6 +53,7 @@ export default function HeroCoin({
   platform,
   drive = "auto",
   scrollSpin = 360,
+  shadow = Boolean(platform),
   className,
 }) {
   const root = useRef(null);
@@ -245,7 +246,7 @@ export default function HeroCoin({
                 // A soft gradient instead of a 70px blur filter, which is very
                 // expensive to re-composite on phones.
                 background:
-                  "radial-gradient(circle at 50% 45%, rgba(255,224,138,0.34), rgba(212,175,55,0.14) 34%, rgba(212,175,55,0.05) 52%, transparent 70%)",
+                  "radial-gradient(circle closest-side at 50% 50%, rgba(255,224,138,0.34), rgba(212,175,55,0.14) 45%, rgba(212,175,55,0.05) 72%, transparent 100%)",
               }}
             />
 
@@ -295,7 +296,7 @@ export default function HeroCoin({
             <CoinSparks ref={sparks} diameter={diameter} reduced={reduced} />
           </div>
 
-          {platform && (
+          {shadow && (
             <motion.div
               aria-hidden
               className="pointer-events-none absolute bottom-0 left-1/2 h-[9%] w-[70%] -translate-x-1/2 translate-y-1/2 rounded-[50%]"
@@ -346,7 +347,7 @@ function CoinFace({ src, z, dim, angle, back = false }) {
     >
       <img
         src={src}
-        alt={back ? "" : "LK55 Level King gold coin"}
+        alt={back ? "" : "LK Level King gold coin"}
         aria-hidden={back || undefined}
         draggable={false}
         className="block h-full w-full select-none rounded-full"
