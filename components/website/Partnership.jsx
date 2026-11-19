@@ -1,127 +1,139 @@
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight, ShieldCheck, UserRoundPlus, Wallet, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { getIcon } from "@/components/common/icons";
+import BrokerActivationSlider from "./BrokerActivationSlider";
 import BrokerRedirectLink from "./BrokerRedirectLink";
 import styles from "./Partnership.module.css";
 
-const DEFAULT_STEPS = [
-  { title: "Register", body: "Create your trading account" },
-  { title: "Deposit", body: "Sign in to fund your account" },
-  { title: "Unlock", body: "Explore the LK community" },
+const CARD_STEPS = [
+  {
+    title: "Register",
+    body: "Create your trading account with guided setup.",
+    imageKey: "registerImage",
+    image: "/images/broker-register.webp",
+    alt: "Blue account cards with a silver padlock and key",
+    action: "Create your account",
+  },
+  {
+    title: "Deposit",
+    body: "Sign in to fund your trading account.",
+    imageKey: "depositImage",
+    image: "/images/broker-deposit.webp",
+    alt: "Blue wallet with stacks of blue and silver coins",
+    action: "Fund your account",
+  },
+  {
+    title: "Unlock",
+    body: "Connect with the Trade with LK community.",
+    imageKey: "unlockImage",
+    image: "/images/broker-unlock.webp",
+    alt: "Blue globe surrounded by an orbit of silver coins",
+    action: "Explore the community",
+  },
 ];
-const STEP_ICONS = [UserRoundPlus, Wallet, Sparkles];
 
 export default function Partnership({ section, features = [], stats = [], steps = [] }) {
   const f = section.fields || {};
   const registerLink = f.ctaLink || "https://my.bytefx.com/register";
   const depositLink = f.depositLink || "https://my.bytefx.com/login";
   const stepLinks = [registerLink, depositLink, f.unlockLink || "#community"];
-  const journey = steps.length ? steps.slice(0, 3) : DEFAULT_STEPS;
   const disclaimers = [f.disclaimer1, f.disclaimer2, f.disclaimer3].filter(Boolean);
-  // Existing databases can still contain the old full-background artwork.
-  const buildingImage = !f.backgroundImage || /^\/Partnership_backgoround\.(png|webp)$/.test(f.backgroundImage)
-    ? "/images/broker-building.webp"
-    : f.backgroundImage;
-  const traderImage = f.traderImage || "/images/broker-trader.webp";
-  const registerText = !f.ctaText || f.ctaText === "Activate Your Trading Terminal"
-    ? "Register with ByteFX"
+  // Restore the original swipe label for databases seeded with the click CTA.
+  const activationText = !f.ctaText || f.ctaText === "Register with ByteFX"
+    ? "Activate Your Trading Terminal"
     : f.ctaText;
 
   return (
     <section id="partner" aria-labelledby="partner-heading" className={styles.section}>
       <div className={styles.container}>
-        <div className={styles.card}>
-          <div className={styles.building} aria-hidden="true">
-            <Image src={buildingImage} alt="" width={1920} height={819} sizes="(max-width: 767px) 160vw, 1200px" unoptimized={!buildingImage.startsWith("/")} />
-          </div>
-
-          <div className={styles.stage}>
+        <div className={styles.panel}>
+          <div className={styles.intro}>
             <div className={styles.copy}>
               <div className={styles.brandRow}>
                 <a href={registerLink} target="_blank" rel="noopener noreferrer" aria-label="Visit ByteFX (opens in a new tab)">
                   <Image src="/bytefx.png" alt="ByteFX" width={170} height={54} className={styles.logo} />
                 </a>
                 <span className={styles.badge}>
-                  <ShieldCheck size={14} aria-hidden="true" />
+                  <ShieldCheck size={16} aria-hidden="true" />
                   {f.badgeText || section.eyebrow || "Official IB Partner"}
                 </span>
               </div>
-
               <h2 id="partner-heading" className={styles.headline}>
                 {section.title || "Trade with"} {f.headlineLine2 || "ByteFX"}.
               </h2>
               {section.subtitle ? <p className={styles.description}>{section.subtitle}</p> : null}
+            </div>
 
-              {features.length ? (
-                <ul className={styles.features}>
-                  {features.slice(0, 4).map((feature) => {
-                    const Icon = getIcon(feature.iconKey);
-                    return (
-                      <li key={feature.id || feature.title} className={styles.feature}>
-                        <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-                        <div>
-                          <h3>{feature.title}</h3>
-                          {feature.body ? <p>{feature.body}</p> : null}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
-
-              <nav aria-label="Get started with ByteFX" className={styles.journey}>
-                <ol>
-                  {journey.map((step, i) => {
-                    const Icon = STEP_ICONS[i];
-                    const external = !stepLinks[i].startsWith("#");
-                    return (
-                      <li key={step.id || step.title}>
-                        <a
-                          href={stepLinks[i]}
-                          target={external ? "_blank" : undefined}
-                          rel={external ? "noopener noreferrer" : undefined}
-                          aria-label={`${step.title}${external ? " with ByteFX (opens in a new tab)" : " in the LK community"}`}
-                        >
-                          <span className={styles.stepIcon}><Icon size={16} strokeWidth={1.8} aria-hidden="true" /></span>
-                          <span>
-                            <span className={styles.stepTitle}>{step.title}</span>
-                            <span className={styles.stepDescription}>{step.body}</span>
-                          </span>
-                        </a>
-                        {i < journey.length - 1 ? <ArrowRight className={styles.stepArrow} size={14} aria-hidden="true" /> : null}
-                      </li>
-                    );
-                  })}
-                </ol>
-              </nav>
-
-              <div className={styles.actions}>
-                <BrokerRedirectLink className={styles.primaryAction} href={registerLink}>
-                  {registerText}<ArrowUpRight size={18} aria-hidden="true" />
-                </BrokerRedirectLink>
-                <a className={styles.textAction} href={depositLink} target="_blank" rel="noopener noreferrer">
+            <div className={styles.activation}>
+              <BrokerActivationSlider href={registerLink} label={activationText} />
+              <div className={styles.secondaryActions}>
+                <a href={depositLink} target="_blank" rel="noopener noreferrer">
                   {f.depositText || "Deposit funds"}<ArrowRight size={16} aria-hidden="true" />
                 </a>
                 {f.secondaryCtaText ? (
-                  <a className={styles.textAction} href={f.secondaryCtaLink || "https://my.bytefx.com/login"} target="_blank" rel="noopener noreferrer">
-                    {f.secondaryCtaText}<ArrowUpRight size={14} aria-hidden="true" />
+                  <a href={f.secondaryCtaLink || "https://my.bytefx.com/login"} target="_blank" rel="noopener noreferrer">
+                    {f.secondaryCtaText}<ArrowUpRight size={16} aria-hidden="true" />
                   </a>
                 ) : null}
               </div>
             </div>
-
-            <div className={styles.visual}>
-              <Image
-                src={traderImage}
-                alt="Trader using a smartphone with blue market charts around him"
-                width={1122}
-                height={1402}
-                sizes="(max-width: 1023px) 80vw, 460px"
-                className={styles.trader}
-                unoptimized={!traderImage.startsWith("/")}
-              />
-            </div>
           </div>
+
+          <nav aria-label="Get started with ByteFX" className={styles.journey}>
+            <ol className={styles.cards}>
+              {CARD_STEPS.map((card, i) => {
+                const step = steps[i] || card;
+                const image = f[card.imageKey] || card.image;
+                const external = /^(https?:)?\/\//.test(stepLinks[i]);
+                const CardLink = i === 0 ? BrokerRedirectLink : "a";
+                return (
+                  <li key={card.imageKey}>
+                    <CardLink
+                      href={stepLinks[i]}
+                      className={styles.glassCard}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                    >
+                      <div className={styles.cardHeading}>
+                        <div>
+                          <span className={styles.stepNumber}>STEP {String(i + 1).padStart(2, "0")}</span>
+                          <h3>{step.title || card.title}</h3>
+                        </div>
+                        <span className={styles.cardArrow}><ArrowUpRight size={20} aria-hidden="true" /></span>
+                      </div>
+                      <p className={styles.cardDescription}>{step.body || card.body}</p>
+                      <div className={styles.artwork}>
+                        <Image
+                          data-broker-art="true"
+                          src={image}
+                          alt={card.alt}
+                          width={800}
+                          height={800}
+                          sizes="(max-width: 639px) 270px, (max-width: 1023px) 30vw, 310px"
+                          unoptimized={!image.startsWith("/")}
+                        />
+                      </div>
+                      <span className={styles.cardAction}>{card.action}<ArrowRight size={17} aria-hidden="true" /></span>
+                    </CardLink>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+
+          {features.length ? (
+            <ul className={styles.benefits}>
+              {features.slice(0, 4).map((feature) => {
+                const Icon = getIcon(feature.iconKey);
+                return (
+                  <li key={feature.id || feature.title}>
+                    <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
+                    <span>{feature.title}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
 
           {stats.length ? (
             <dl className={styles.stats}>
