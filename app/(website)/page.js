@@ -15,6 +15,7 @@ import Contact from "@/components/website/Contact";
 import Footer from "@/components/website/Footer";
 import WelcomePoster from "@/components/website/WelcomePoster";
 import SmoothScroll from "@/components/common/SmoothScroll";
+import PartnershipDevices from "@/components/website/PartnershipDevices";
 
 // SEO comes from the database (Settings → SEO), falling back to defaults.
 export async function generateMetadata() {
@@ -44,12 +45,15 @@ export default async function HomePage() {
       <LearningHub section={s.videos} categories={c.categories} videos={c.videos} />
     ),
     partner: () => (
+      <>
       <Partnership
         section={s.partner}
         features={c.partnerFeatures}
         stats={c.partnerStats}
         steps={c.unlockSteps}
       />
+        <PartnershipDevices section={s.partner} stats={c.partnerStats} />
+      </>
     ),
     dashboard: () => (
       <Dashboard

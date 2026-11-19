@@ -1,0 +1,91 @@
+/* ByteFX broker section built around the device mockup. */
+
+.section {
+  position: relative;
+  padding: 24px 0 64px;
+  scroll-margin-top: 80px;
+  background: #050505;
+  color: #f2f0eb;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+.card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  align-items: center;
+  gap: 8px 32px;
+  overflow: hidden;
+  padding: 44px 40px 0;
+  border: 1px solid #ffffff1a;
+  border-radius: 28px;
+  background:
+    radial-gradient(ellipse 60% 70% at 78% 45%, #1d4ed82e, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 70% 80%, #4caf2a1f, transparent 70%),
+    linear-gradient(180deg, #0b0d10 0%, #070809 100%);
+  box-shadow: 0 40px 80px -40px #000000e6;
+}
+
+.copy { min-width: 0; padding-bottom: 40px; }
+
+.brandRow { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.logo { width: 124px; height: auto; padding: 7px 12px; border-radius: 10px; background: #ffffff; box-sizing: content-box; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  border: 1px solid #ffffff26; border-radius: 999px; color: #d9dce0;
+  font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+.headline {
+  margin-top: 22px; color: #ffffff;
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem); font-weight: 600; line-height: 1.12; letter-spacing: -0.03em;
+}
+.description { max-width: 440px; margin-top: 12px; color: #b4b9bf; font-size: 0.9375rem; line-height: 1.65; }
+
+.points { display: grid; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+.points li { display: flex; align-items: center; gap: 10px; color: #e6e8eb; font-size: 0.875rem; }
+.points svg { flex-shrink: 0; padding: 3px; border-radius: 999px; background: #ffffff14; color: #ffffff; box-sizing: content-box; }
+
+.cta { margin-top: 28px; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 12px; }
+.links a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: #d9dce0; font-size: 0.875rem; transition: color 180ms ease; }
+.links a:hover { color: #ffffff; text-decoration: underline; text-underline-offset: 4px; }
+.section a:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; border-radius: 6px; }
+
+/* The mockup bleeds slightly past the card's right edge for depth. */
+.visual { position: relative; align-self: center; min-width: 0; margin: 0 -8px 0 -12px; padding-bottom: 36px; }
+.visual::after {
+  content: ""; position: absolute; z-index: -1; left: 8%; right: 4%; bottom: 18px; height: 40px;
+  background: radial-gradient(ellipse at center, #000000b3, transparent 70%);
+  pointer-events: none;
+}
+.devices { display: block; width: 100%; height: auto; filter: drop-shadow(0 30px 40px #00000080); }
+
+.stats {
+  grid-column: 1 / -1;
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px;
+  margin: 0 -40px; padding: 18px 40px;
+  border-top: 1px solid #ffffff1f; background: #0000004d;
+}
+.stats > div { min-width: 0; }
+.stats dt { color: #8b9198; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+.stats dd { margin: 4px 0 0; color: #ffffff; font-size: 0.875rem; font-weight: 500; line-height: 1.4; }
+
+.disclaimers { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 14px; color: #7d838a; font-size: 0.6875rem; line-height: 1.6; }
+
+@media (max-width: 1023px) {
+  .card { grid-template-columns: 1fr; padding: 32px 28px 0; }
+  .copy { padding-bottom: 8px; }
+  .visual { margin: 0 -8px; padding-bottom: 20px; }
+  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 -28px; padding: 18px 28px; gap: 14px 20px; }
+}
+
+@media (max-width: 639px) {
+  .section { padding: 16px 0 40px; }
+  .container { padding: 0 16px; }
+  .card { border-radius: 22px; padding: 24px 20px 0; }
+  .logo { width: 104px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 -20px; padding: 16px 20px; }
+}
