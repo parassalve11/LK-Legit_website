@@ -25,7 +25,9 @@ import CoinSparks from "./CoinSparks";
 // Dragging interferes with the spin in both modes.
 // ============================================================
 
-const EDGE_PANELS = 52;
+// Fewer rim panels on small coins: each panel is its own 3D layer, and the
+// footer coin or a phone-sized hero coin cannot show 52 distinct reeds anyway.
+const edgePanels = (d) => (d < 220 ? 24 : d < 380 ? 36 : 48);
 const THICKNESS_RATIO = 0.065;
 const BASE_SPEED = 26; // degrees per second
 const DRAG_GAIN = 0.55; // degrees per pixel dragged
@@ -127,7 +129,9 @@ export default function HeroCoin({
   const rotateX = useTransform([pitch], ([p]) => -2.5 + p);
 
   const facing = useTransform(rotateY, (deg) => Math.abs(Math.cos((deg * Math.PI) / 180)));
-  const faceBrightness = useTransform(facing, (f) => `brightness(${0.9 + f * 0.1})`);
+  // Dimming is an overlay's opacity, not a CSS filter: opacity is composited
+  // on the GPU, while an animated filter repaints both faces every frame.
+  const faceDim = useTransform(facing, (f) => (1 - f) * 0.1);
   const glowOpacity = useTransform(facing, [0, 1], [0.3, 0.72]);
   const contactScale = useTransform(facing, [0, 1], [0.5, 1]);
   const contactOpacity = useTransform(facing, [0, 1], [0.45, 0.85]);
@@ -179,7 +183,8 @@ export default function HeroCoin({
 
   const radius = diameter / 2;
   const thickness = diameter * THICKNESS_RATIO;
-  const panelWidth = diameter ? (Math.PI * diameter) / EDGE_PANELS + 1.5 : 0;
+  const panelCount = edgePanels(diameter);
+  const panelWidth = diameter ? (Math.PI * diameter) / panelCount + 1.5 : 0;
 
   return (
     <div ref={root} className={className}>
@@ -196,6 +201,8 @@ export default function HeroCoin({
             alt=""
             aria-hidden
             draggable={false}
+            fetchPriority="high"
+            decoding="async"
             className="absolute inset-0 h-full w-full select-none object-contain"
             style={{
               mixBlendMode: "screen",
@@ -213,7 +220,7 @@ export default function HeroCoin({
         )}
 
         <div
-          className="absolute touch-none cursor-grab active:cursor-grabbing motion-reduce:cursor-default motion-reduce:active:cursor-default"
+          className="absolute touch-pan-y cursor-grab active:cursor-grabbing motion-reduce:cursor-default motion-reduce:active:cursor-default"
           style={{
             width: platform ? `${COIN_SCALE * 100}%` : "100%",
             left: "50%",
@@ -231,11 +238,14 @@ export default function HeroCoin({
           <div ref={stage} className="relative aspect-square w-full">
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute inset-[-26%] rounded-full blur-[70px]"
+              className="pointer-events-none absolute inset-[-34%] rounded-full"
               style={{
                 opacity: glowOpacity,
+                willChange: "opacity",
+                // A soft gradient instead of a 70px blur filter, which is very
+                // expensive to re-composite on phones.
                 background:
-                  "radial-gradient(circle at 50% 45%, rgba(255,224,138,0.5), rgba(212,175,55,0.2) 45%, transparent 72%)",
+                  "radial-gradient(circle at 50% 45%, rgba(255,224,138,0.34), rgba(212,175,55,0.14) 34%, rgba(212,175,55,0.05) 52%, transparent 70%)",
               }}
             />
 
@@ -255,8 +265,8 @@ export default function HeroCoin({
                 style={{ transformStyle: "preserve-3d", transform: "rotateX(90deg)" }}
               >
                 {diameter > 0 &&
-                  Array.from({ length: EDGE_PANELS }, (_, i) => {
-                    const a = (i / EDGE_PANELS) * 360;
+                  Array.from({ length: panelCount }, (_, i) => {
+                    const a = (i / panelCount) * 360;
                     // Gentle key light: enough to read as metal, never enough to go
                     // muddy — the panels revolve, so a wide dark range would swing
                     // dull faces into view at the edge-on pose.
@@ -271,16 +281,16 @@ export default function HeroCoin({
                           marginLeft: -panelWidth / 2,
                           marginTop: -thickness / 2,
                           transform: `rotateY(${a}deg) translateZ(${radius}px)`,
-                          backgroundImage: `linear-gradient(180deg, rgba(255,248,225,0.5), rgba(255,255,255,0) 30%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.42)), ${reedGradient(panelWidth)}`,
-                          filter: `brightness(${shade.toFixed(3)})`,
+                          // Shade is baked into a tint layer rather than a per-panel filter.
+                          backgroundImage: `${shadeLayer(shade)}, linear-gradient(180deg, rgba(255,248,225,0.5), rgba(255,255,255,0) 30%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.42)), ${reedGradient(panelWidth)}`,
                         }}
                       />
                     );
                   })}
               </div>
 
-              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} angle={angle} />
-              <CoinFace src={src} z={thickness / 2} brightness={faceBrightness} angle={angle} back />
+              <CoinFace src={src} z={thickness / 2} dim={faceDim} angle={angle} />
+              <CoinFace src={src} z={thickness / 2} dim={faceDim} angle={angle} back />
             </motion.div>
             <CoinSparks ref={sparks} diameter={diameter} reduced={reduced} />
           </div>
@@ -288,7 +298,7 @@ export default function HeroCoin({
           {platform && (
             <motion.div
               aria-hidden
-              className="pointer-events-none absolute bottom-0 left-1/2 h-[7%] w-[64%] -translate-x-1/2 translate-y-1/2 rounded-[50%] blur-md"
+              className="pointer-events-none absolute bottom-0 left-1/2 h-[9%] w-[70%] -translate-x-1/2 translate-y-1/2 rounded-[50%]"
               style={{
                 scaleX: contactScale,
                 opacity: contactOpacity,
@@ -303,13 +313,25 @@ export default function HeroCoin({
   );
 }
 
-function CoinFace({ src, z, brightness, angle, back = false }) {
+function shadeLayer(shade) {
+  const tint =
+    shade < 1
+      ? `rgba(0,0,0,${(1 - shade).toFixed(3)})`
+      : `rgba(255,244,214,${((shade - 1) * 0.55).toFixed(3)})`;
+  return `linear-gradient(${tint}, ${tint})`;
+}
+
+// The light band is painted once and slid across the face with a transform,
+// so the sweep is composited instead of regenerating a gradient each frame.
+const REFLECTION_BAND =
+  "linear-gradient(110deg, transparent 20%, rgba(255,239,181,0.08) 34%, rgba(255,250,221,0.3) 50%, rgba(255,239,181,0.08) 66%, transparent 80%)";
+
+function CoinFace({ src, z, dim, angle, back = false }) {
   // Offset the reverse face's lighting by half a turn. This keeps the light
   // moving across the visible metal in the same direction on either side.
-  const reflection = useTransform(angle, (degrees) => {
+  const reflectionX = useTransform(angle, (degrees) => {
     const phase = ((degrees + (back ? 180 : 0)) * Math.PI) / 180;
-    const center = 50 + Math.sin(phase) * 48;
-    return `linear-gradient(110deg, transparent ${center - 30}%, rgba(255,239,181,0.08) ${center - 16}%, rgba(255,250,221,0.3) ${center}%, rgba(255,239,181,0.08) ${center + 16}%, transparent ${center + 30}%)`;
+    return `${Math.sin(phase) * 48}%`;
   });
 
   return (
@@ -319,7 +341,6 @@ function CoinFace({ src, z, brightness, angle, back = false }) {
         transform: `translateZ(${back ? -z : z}px)${back ? " rotateY(180deg)" : ""}`,
         backfaceVisibility: "hidden",
         WebkitBackfaceVisibility: "hidden",
-        filter: brightness,
         backgroundColor: "#dcae47",
       }}
     >
@@ -332,8 +353,13 @@ function CoinFace({ src, z, brightness, angle, back = false }) {
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full mix-blend-screen"
-        style={{ background: reflection }}
+        className="pointer-events-none absolute inset-0 mix-blend-screen"
+        style={{ x: reflectionX, background: REFLECTION_BAND }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-full bg-black"
+        style={{ opacity: dim }}
       />
       <div
         aria-hidden

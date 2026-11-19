@@ -28,9 +28,9 @@ export default function Header({ nav, siteName = "Trade with LK55", logoUrl = "/
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+          "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
           scrolled
-            ? "border-b border-[rgba(212,175,55,0.18)] bg-[rgba(8,7,4,0.75)] backdrop-blur-xl"
+            ? "border-b border-[rgba(212,175,55,0.18)] bg-[rgba(8,7,4,0.94)] lg:bg-[rgba(8,7,4,0.75)] lg:backdrop-blur-xl"
             : "bg-transparent",
         )}
       >

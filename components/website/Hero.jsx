@@ -68,13 +68,13 @@ export default function Hero({ section, checks, stats, settings }) {
           <div className="relative mx-auto w-full max-w-[680px] lg:-mr-8 lg:-mt-6 xl:-mr-16">
             <div
               aria-hidden
-              className="absolute inset-[-8%] -z-20 opacity-80 blur-[80px]"
+              className="absolute inset-[-18%] -z-20 opacity-80"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 40%, rgba(245,196,81,0.4), rgba(212,175,55,0.14) 40%, transparent 70%)",
+                  "radial-gradient(circle at 50% 40%, rgba(245,196,81,0.26), rgba(212,175,55,0.1) 35%, rgba(212,175,55,0.03) 55%, transparent 70%)",
               }}
             />
-            <HeroCoin platform="/Platfrom.png" drive="auto" />
+            <HeroCoin platform="/Platfrom.webp" drive="auto" />
           </div>
         </Reveal>
       </div>

@@ -14,6 +14,7 @@ import Community from "@/components/website/Community";
 import Contact from "@/components/website/Contact";
 import Footer from "@/components/website/Footer";
 import WelcomePoster from "@/components/website/WelcomePoster";
+import SmoothScroll from "@/components/common/SmoothScroll";
 
 // SEO comes from the database (Settings → SEO), falling back to defaults.
 export async function generateMetadata() {
@@ -68,6 +69,7 @@ export default async function HomePage() {
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-[#f2f0eb]" style={{ overflowX: "clip" }}>
+      <SmoothScroll />
       <Header nav={c.nav} siteName={c.settings.siteName} />
       <main>
         {c.sectionOrder.map((key) => {

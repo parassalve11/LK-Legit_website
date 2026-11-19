@@ -112,10 +112,16 @@ export default function Partnership({ section, features, stats }) {
         {/* Main card */}
         <div className="relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#050806] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.9)] lg:min-h-[620px]">
           <img
-            src={f.backgroundImage || "/Partnership_backgoround.png"}
+            // The seeded content still points at the original 2.3 MB PNG; serve the
+            // compressed copy for it, and any other admin-set image untouched.
+            src={(f.backgroundImage || "/Partnership_backgoround.png").replace(
+              /^\/Partnership_backgoround\.png$/,
+              "/Partnership_backgoround.webp",
+            )}
             alt=""
             aria-hidden="true"
             loading="lazy"
+            decoding="async"
             className="absolute inset-0 h-full w-full scale-105 object-cover object-center opacity-85 blur-[3px]"
           />
           <div className="absolute inset-0 bg-linear-to-r from-[#050806]/85 via-[#050806]/35 to-[#050806]/25" />

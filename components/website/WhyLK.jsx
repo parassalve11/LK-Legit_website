@@ -5,8 +5,8 @@ import { Reveal, CountUp, CandlestickBackdrop } from "@/components/common/Primit
 
 function MarketCycles() {
   const cards = [
-    { src: "/bull.png", alt: "Bull cycle", label: "Bull Cycle", hoverY: -4 },
-    { src: "/Bear.png", alt: "Bear cycle", label: "Bear Cycle", hoverY: 4 },
+    { src: "/bull.webp", alt: "Bull cycle", label: "Bull Cycle", hoverY: -4 },
+    { src: "/Bear.webp", alt: "Bear cycle", label: "Bear Cycle", hoverY: 4 },
   ];
   return (
     <div className="relative flex w-full flex-col items-center justify-center gap-6 sm:flex-row sm:gap-10">
@@ -23,11 +23,13 @@ function MarketCycles() {
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
             className="group relative w-36 shrink-0 sm:w-44 md:w-52 lg:w-60"
           >
-            <div className="absolute inset-0 -z-10 scale-125 rounded-full bg-[radial-gradient(circle,rgba(245,196,81,0.4),transparent_70%)] opacity-70 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="absolute inset-0 -z-10 scale-125 rounded-full bg-[radial-gradient(circle,rgba(245,196,81,0.28),rgba(245,196,81,0.08)_45%,transparent_70%)] opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
             <img
               src={c.src}
               alt={c.alt}
               draggable={false}
+              loading="lazy"
+              decoding="async"
               className="h-auto w-full select-none object-contain mix-blend-screen drop-shadow-[0_18px_40px_rgba(212,175,55,0.35)] transition-[filter] duration-300 group-hover:drop-shadow-[0_18px_55px_rgba(245,196,81,0.6)]"
               style={{
                 WebkitMaskImage: "radial-gradient(ellipse at center, black 60%, transparent 100%)",

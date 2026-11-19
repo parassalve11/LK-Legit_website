@@ -45,7 +45,8 @@
     background-image:
       radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(212, 175, 55, 0.08), transparent 70%),
       radial-gradient(ellipse 800px 400px at 100% 40%, rgba(212, 175, 55, 0.05), transparent 70%);
-    background-attachment: fixed;
+    /* No background-attachment: fixed — it forces a full repaint on every
+       scroll frame, which is the main cause of scroll jank on phones. */
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -388,3 +389,26 @@ a:hover > .social-brand,
 }
 @keyframes activate-shimmer { 0% { background-position: 150% 0; } 100% { background-position: -100% 0; } }
 @media (prefers-reduced-motion: reduce) { .activate-shimmer { animation: none; } }
+
+/* ============================================================
+   Scroll performance
+   ============================================================ */
+
+/* Lenis (components/common/SmoothScroll.jsx) drives desktop wheel scrolling.
+   CSS smooth scrolling must be off while it runs, or the two fight. */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
+/* Frosted-glass blur re-renders everything behind a panel on every scroll
+   frame. Phones and tablets cannot afford it, and these panels are already
+   ~80% opaque, so they look the same without it. */
+@media (max-width: 1023px), (hover: none) {
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

@@ -18,7 +18,7 @@ export default function LearnFromLK({ section, stats }) {
 
   return (
     <section id="learn" className="relative overflow-hidden bg-[#050505] py-24">
-      <div className="pointer-events-none absolute -right-40 top-1/3 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(245,196,81,0.12),transparent_70%)] blur-3xl" />
+      <div className="pointer-events-none absolute -right-40 top-1/3 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(245,196,81,0.1),rgba(245,196,81,0.03)_45%,transparent_70%)]" />
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr]">
         <div>
           <Reveal>
