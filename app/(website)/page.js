@@ -5,7 +5,6 @@ import WhyLK from "@/components/website/WhyLK";
 import TradeSystem from "@/components/website/TradeSystem";
 import LearnFromLK from "@/components/website/LearnFromLK";
 import LearningHub from "@/components/website/LearningHub";
-import Partnership from "@/components/website/Partnership";
 import Dashboard from "@/components/website/Dashboard";
 import Tools from "@/components/website/Tools";
 import News from "@/components/website/News";
@@ -45,15 +44,7 @@ export default async function HomePage() {
       <LearningHub section={s.videos} categories={c.categories} videos={c.videos} />
     ),
     partner: () => (
-      <>
-      <Partnership
-        section={s.partner}
-        features={c.partnerFeatures}
-        stats={c.partnerStats}
-        steps={c.unlockSteps}
-      />
-        <PartnershipDevices section={s.partner} stats={c.partnerStats} />
-      </>
+      <PartnershipDevices section={s.partner} stats={c.partnerStats} />
     ),
     dashboard: () => (
       <Dashboard

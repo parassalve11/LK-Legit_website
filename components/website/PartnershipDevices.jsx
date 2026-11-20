@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, Check, ShieldCheck } from "lucide-react";
 import BrokerActivationSlider from "./BrokerActivationSlider";
 import styles from "./PartnershipDevices.module.css";
 
-// Second ByteFX broker section, shown below the main one, built around the device mockup.
+// ByteFX broker section, built around the device mockup.
 const POINTS = [
   "Live & demo MT5 accounts from one dashboard",
   "Forex, gold, crypto & indices",
@@ -20,7 +20,7 @@ export default function PartnershipDevices({ section, stats = [] }) {
   const disclaimers = [f.disclaimer1, f.disclaimer2, f.disclaimer3].filter(Boolean);
 
   return (
-    <section id="partner-devices" aria-labelledby="partner-devices-heading" className={styles.section}>
+    <section id="partner" aria-labelledby="partner-heading" className={styles.section}>
       <div className={styles.container}>
         <div className={styles.card}>
           <div className={styles.copy}>
@@ -34,7 +34,7 @@ export default function PartnershipDevices({ section, stats = [] }) {
               </span>
             </div>
 
-            <h2 id="partner-devices-heading" className={styles.headline}>
+            <h2 id="partner-heading" className={styles.headline}>
               Your ByteFX terminal, on every screen.
             </h2>
             <p className={styles.description}>
