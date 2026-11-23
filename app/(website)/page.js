@@ -44,7 +44,7 @@ export default async function HomePage() {
       <LearningHub section={s.videos} categories={c.categories} videos={c.videos} />
     ),
     partner: () => (
-      <PartnershipDevices section={s.partner} stats={c.partnerStats} />
+      <PartnershipDevices section={s.partner} />
     ),
     dashboard: () => (
       <Dashboard

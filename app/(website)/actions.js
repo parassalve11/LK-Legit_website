@@ -1,7 +1,9 @@
 "use server";
 
 import { LeadSchema, fieldErrors } from "@/lib/validations";
+import { after } from "next/server";
 import { createLead } from "@/services/leads";
+import { notifyNewLead } from "@/services/telegram";
 
 // Very small in-memory throttle. Enough to stop casual form spam; a real
 // deployment behind a proxy should also rate limit at the edge.
@@ -42,6 +44,9 @@ export async function submitContact(prevState, formData) {
 
   try {
     await createLead({ ...parsed.data, type: "contact" });
+    // Telegram alert runs after the response is sent, so it never slows the
+    // form down and a Telegram outage can't make the submission fail.
+    after(() => notifyNewLead(parsed.data));
     return { ok: true, message: "Thanks — we'll be in touch shortly." };
   } catch (error) {
     console.error("[contact] save failed:", error?.message);

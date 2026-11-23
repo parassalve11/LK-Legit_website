@@ -1,91 +1,88 @@
-/* ByteFX broker section built around the device mockup. */
-
 .section {
   position: relative;
-  padding: 24px 0 64px;
+  padding: 44px 0;
   scroll-margin-top: 80px;
-  background: #050505;
-  color: #f2f0eb;
+  background: #202327;
+  color: #f6f6f7;
+  font-family: var(--font-inter), Arial, sans-serif;
 }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-
-.card {
-  position: relative;
-  isolation: isolate;
+.container { max-width: 1360px; margin: 0 auto; padding: 0 40px; }
+.layout {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: minmax(240px, 0.95fr) minmax(0, 1.85fr) minmax(210px, 0.8fr);
   align-items: center;
-  gap: 8px 32px;
-  overflow: hidden;
-  padding: 44px 40px 0;
-  border: 1px solid #ffffff1a;
-  border-radius: 28px;
-  background:
-    radial-gradient(ellipse 60% 70% at 78% 45%, #1d4ed82e, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 70% 80%, #4caf2a1f, transparent 70%),
-    linear-gradient(180deg, #0b0d10 0%, #070809 100%);
-  box-shadow: 0 40px 80px -40px #000000e6;
+  gap: 24px;
+  min-height: 400px;
 }
-
-.copy { min-width: 0; padding-bottom: 40px; }
-
-.brandRow { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
-.logo { width: 124px; height: auto; padding: 7px 12px; border-radius: 10px; background: #ffffff; box-sizing: content-box; }
-.badge {
-  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-  border: 1px solid #ffffff26; border-radius: 999px; color: #d9dce0;
-  font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
-}
-
+.copy { position: relative; z-index: 1; min-width: 0; }
+.brandRow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.logo { display: block; width: 100px; height: auto; padding: 6px 9px; border-radius: 4px; background: #fff; }
+.badge { max-width: 100px; color: #b5b7bd; font-size: 0.6875rem; line-height: 1.5; }
 .headline {
-  margin-top: 22px; color: #ffffff;
-  font-size: clamp(1.9rem, 3.2vw, 2.6rem); font-weight: 600; line-height: 1.12; letter-spacing: -0.03em;
+  margin: 25px 0 0;
+  font-family: inherit;
+  font-size: clamp(1.875rem, 2.7vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
 }
-.description { max-width: 440px; margin-top: 12px; color: #b4b9bf; font-size: 0.9375rem; line-height: 1.65; }
+.description { max-width: 285px; margin: 20px 0 0; color: #b5b7bd; font-size: 0.9375rem; line-height: 1.8; }
+.actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 48px; }
+.primaryLink { display: inline-flex; align-items: center; justify-content: center; gap: 26px; min-height: 48px; padding: 0 22px; border-radius: 5px; background: #f5f6f7; color: #202327; font-size: 0.875rem; font-weight: 600; transition: background 160ms ease; }
+.primaryLink:hover { background: #dfe7f3; }
+.loginLink { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: #b5b7bd; font-size: 0.75rem; }
+.loginLink:hover { color: #fff; }
+.section a:focus-visible { outline: 2px solid #a9caff; outline-offset: 5px; }
 
-.points { display: grid; gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
-.points li { display: flex; align-items: center; gap: 10px; color: #e6e8eb; font-size: 0.875rem; }
-.points svg { flex-shrink: 0; padding: 3px; border-radius: 999px; background: #ffffff14; color: #ffffff; box-sizing: content-box; }
+.visual { min-width: 0; margin: 0 -20px; }
+.devices { display: block; width: 100%; height: auto; max-height: 420px; object-fit: contain; }
+.journey { padding-left: 8px; }
+.stepsLabel { margin: 0 0 30px; color: #b5b7bd; font-size: 0.75rem; }
+.steps { list-style: none; margin: 0; padding: 0; }
+.steps li { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 17px; min-height: 120px; padding-bottom: 36px; }
+.steps li:last-child { min-height: auto; padding-bottom: 0; }
+.steps li:not(:last-child)::after { content: ""; position: absolute; top: 40px; bottom: 13px; left: 10px; width: 2px; background: #41454c; }
+.stepNumber { color: #a3a7af; font-size: 1.625rem; font-weight: 500; line-height: 1; }
+.steps h3 { margin: 1px 0 0; font-family: inherit; font-size: 0.875rem; font-weight: 600; line-height: 1.55; letter-spacing: 0; }
+.steps p { margin: 7px 0 0; color: #b5b7bd; font-size: 0.75rem; line-height: 1.7; }
 
-.cta { margin-top: 28px; }
-.links { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 12px; }
-.links a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: #d9dce0; font-size: 0.875rem; transition: color 180ms ease; }
-.links a:hover { color: #ffffff; text-decoration: underline; text-underline-offset: 4px; }
-.section a:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; border-radius: 6px; }
-
-/* The mockup bleeds slightly past the card's right edge for depth. */
-.visual { position: relative; align-self: center; min-width: 0; margin: 0 -8px 0 -12px; padding-bottom: 36px; }
-.visual::after {
-  content: ""; position: absolute; z-index: -1; left: 8%; right: 4%; bottom: 18px; height: 40px;
-  background: radial-gradient(ellipse at center, #000000b3, transparent 70%);
-  pointer-events: none;
+@media (max-width: 1100px) and (min-width: 1024px) {
+  .container { padding: 0 28px; }
+  .layout { gap: 18px; grid-template-columns: 240px minmax(0, 1fr) 200px; }
+  .journey { padding-left: 0; }
+  .steps li { column-gap: 10px; }
 }
-.devices { display: block; width: 100%; height: auto; filter: drop-shadow(0 30px 40px #00000080); }
-
-.stats {
-  grid-column: 1 / -1;
-  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px;
-  margin: 0 -40px; padding: 18px 40px;
-  border-top: 1px solid #ffffff1f; background: #0000004d;
-}
-.stats > div { min-width: 0; }
-.stats dt { color: #8b9198; font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
-.stats dd { margin: 4px 0 0; color: #ffffff; font-size: 0.875rem; font-weight: 500; line-height: 1.4; }
-
-.disclaimers { display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 14px; color: #7d838a; font-size: 0.6875rem; line-height: 1.6; }
 
 @media (max-width: 1023px) {
-  .card { grid-template-columns: 1fr; padding: 32px 28px 0; }
-  .copy { padding-bottom: 8px; }
-  .visual { margin: 0 -8px; padding-bottom: 20px; }
-  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 -28px; padding: 18px 28px; gap: 14px 20px; }
+  .section { padding: 36px 0; }
+  .container { padding: 0 32px; }
+  .layout { grid-template-columns: minmax(230px, 0.9fr) minmax(0, 1.2fr); gap: 36px 24px; min-height: 0; }
+  .headline { font-size: 2.125rem; }
+  .visual { margin: 0 -12px; }
+  .journey { grid-column: 1 / -1; padding: 28px 0 0; border-top: 1px solid #ffffff12; }
+  .stepsLabel { margin-bottom: 24px; }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .steps li { min-height: 0; padding: 0; column-gap: 10px; }
+  .steps li:not(:last-child)::after { display: none; }
 }
 
 @media (max-width: 639px) {
-  .section { padding: 16px 0 40px; }
-  .container { padding: 0 16px; }
-  .card { border-radius: 22px; padding: 24px 20px 0; }
-  .logo { width: 104px; }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 -20px; padding: 16px 20px; }
+  .section { padding: 32px 0; }
+  .container { padding: 0 24px; }
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .headline { margin-top: 22px; font-size: 2.25rem; }
+  .description { max-width: 340px; margin-top: 16px; }
+  .actions { margin-top: 38px; gap: 8px; }
+  .visual { width: calc(100% + 24px); max-width: 500px; justify-self: center; margin: 0 -12px; }
+  .journey { padding-top: 26px; }
+  .steps { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .steps li { min-height: 92px; padding-bottom: 24px; column-gap: 16px; }
+  .steps li:not(:last-child)::after { display: block; }
+  .steps h3 { font-size: 0.9375rem; }
+  .steps p { font-size: 0.8125rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryLink { transition: none; }
 }
