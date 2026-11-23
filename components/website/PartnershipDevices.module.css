@@ -16,9 +16,7 @@
   min-height: 400px;
 }
 .copy { position: relative; z-index: 1; min-width: 0; }
-.brandRow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.logo { display: block; width: 100px; height: auto; padding: 6px 9px; border-radius: 4px; background: #fff; }
-.badge { max-width: 100px; color: #b5b7bd; font-size: 0.6875rem; line-height: 1.5; }
+.badge { display: inline-block; padding: 5px 11px; border: 1px solid #ffffff1f; border-radius: 999px; color: #b5b7bd; font-size: 0.6875rem; font-weight: 500; line-height: 1.5; letter-spacing: 0.02em; }
 .headline {
   margin: 25px 0 0;
   font-family: inherit;
@@ -29,8 +27,11 @@
 }
 .description { max-width: 285px; margin: 20px 0 0; color: #b5b7bd; font-size: 0.9375rem; line-height: 1.8; }
 .actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 48px; }
-.primaryLink { display: inline-flex; align-items: center; justify-content: center; gap: 26px; min-height: 48px; padding: 0 22px; border-radius: 5px; background: #f5f6f7; color: #202327; font-size: 0.875rem; font-weight: 600; transition: background 160ms ease; }
-.primaryLink:hover { background: #dfe7f3; }
+.primaryLink { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 52px; padding: 0 20px 0 22px; border-radius: 6px; background: #f5f6f7; color: #202327; font-size: 0.9375rem; font-weight: 600; white-space: nowrap; transition: background 160ms ease; }
+.primaryLink:hover { background: #fff; }
+.buttonLogo { display: block; width: auto; height: 19px; margin-top: 1px; }
+.buttonArrow { flex: none; margin-left: 9px; transition: transform 160ms ease; }
+.primaryLink:hover .buttonArrow { transform: translateX(3px); }
 .loginLink { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: #b5b7bd; font-size: 0.75rem; }
 .loginLink:hover { color: #fff; }
 .section a:focus-visible { outline: 2px solid #a9caff; outline-offset: 5px; }
@@ -84,5 +85,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryLink { transition: none; }
+  .primaryLink, .buttonArrow { transition: none; }
+  .primaryLink:hover .buttonArrow { transform: none; }
 }

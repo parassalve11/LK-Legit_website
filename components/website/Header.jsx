@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Menu, X } from "@/components/common/icons";
-import { GoldButton } from "@/components/common/Primitives";
+import { Menu, X } from "@/components/common/icons";
+import TradingTerminalLink from "./TradingTerminalLink";
 import { cn } from "@/lib/utils";
 
 // The broker partner link is highlighted in ByteFX green on every screen size.
 const isPartner = (n) => n.anchor === "#partner" || /partner/i.test(n.label);
 
-export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Logo.png" }) {
+export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Logo.png", brokerLoginHref }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(nav?.[0]?.label || "Home");
@@ -46,7 +46,7 @@ export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Lo
             </span>
           </a>
 
-          <nav className="hidden items-center gap-7 lg:flex">
+          <nav className="hidden items-center gap-4 xl:flex">
             {nav.map((n) => {
               const partner = isPartner(n);
               return (
@@ -80,13 +80,11 @@ export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Lo
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <GoldButton as="a" href="#contact">
-              Join Community <ArrowRight className="h-4 w-4" />
-            </GoldButton>
+            <TradingTerminalLink href={brokerLoginHref} compact />
           </div>
 
           <button
-            className="p-2 text-[#f5c451] lg:hidden"
+            className="p-2 text-[#f5c451] xl:hidden"
             onClick={() => setOpen(true)}
             aria-label="Open menu"
           >
@@ -101,7 +99,7 @@ export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Lo
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-60 lg:hidden"
+            className="fixed inset-0 z-60 xl:hidden"
           >
             <div className="absolute inset-0 bg-black/70" onClick={() => setOpen(false)} />
             <motion.div
@@ -139,9 +137,7 @@ export default function Header({ nav, siteName = "Trade with LK", logoUrl = "/Lo
                 ))}
               </nav>
               <div className="mt-auto flex flex-col gap-3">
-                <GoldButton as="a" href="#contact" className="justify-center" onClick={() => setOpen(false)}>
-                  Join Community <ArrowRight className="h-4 w-4" />
-                </GoldButton>
+                <TradingTerminalLink href={brokerLoginHref} compact onClick={() => setOpen(false)} />
               </div>
             </motion.div>
           </motion.div>

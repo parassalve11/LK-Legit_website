@@ -30,6 +30,7 @@ export async function generateMetadata() {
 export default async function HomePage() {
   const c = await getLandingContent();
   const s = c.sections;
+  const brokerLoginHref = s.partner?.fields?.depositLink || "https://my.bytefx.com/login";
   const channelHref = s.videos?.fields?.channelUrl || "https://www.youtube.com/@TradewithLK55";
 
   // Section visibility and order are admin-controlled.
@@ -65,7 +66,7 @@ export default async function HomePage() {
   return (
     <div className="relative min-h-screen bg-[#050505] text-[#f2f0eb]" style={{ overflowX: "clip" }}>
       <SmoothScroll />
-      <Header nav={c.nav} siteName={c.settings.siteName} />
+      <Header nav={c.nav} siteName={c.settings.siteName} brokerLoginHref={brokerLoginHref} />
       <main>
         {c.sectionOrder.map((key) => {
           const render = RENDERERS[key];

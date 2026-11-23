@@ -1,0 +1,88 @@
+.capsule {
+  --knob-size: 42px;
+  --device-width: 86px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 330px;
+  max-width: 100%;
+  height: 56px;
+  padding: 0;
+  border: 1px solid #c69b394d;
+  border-radius: 7px;
+  background: linear-gradient(105deg, #504321, #382b14);
+  color: #f6f2e8;
+  text-align: left;
+  user-select: none;
+  isolation: isolate;
+  transition: border-color 180ms ease;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d8ab3422, #d8ab3466);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.devices {
+  position: absolute;
+  z-index: 1;
+  right: 5px;
+  bottom: 2px;
+  width: var(--device-width);
+  height: auto;
+  filter: drop-shadow(0 3px 4px #0005);
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: calc(var(--knob-size) + 19px);
+  padding-right: calc(var(--device-width) + 20px);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.chevrons { position: absolute; right: calc(var(--device-width) + 9px); top: calc(50% - 7px); color: #d7b86b; }
+.knob {
+  position: absolute;
+  z-index: 2;
+  top: 6px;
+  left: 6px;
+  display: grid;
+  place-items: center;
+  width: var(--knob-size);
+  height: var(--knob-size);
+  border: 1px solid #ffe2a080;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #ffe39a, #cca044);
+  color: #33250e;
+  box-shadow: 0 2px 6px #0004;
+  cursor: grab;
+}
+.knob:active { cursor: grabbing; }
+.capsule:hover { border-color: #e2bc6580; }
+.capsule:focus-visible { outline: 2px solid #f5c451; outline-offset: 5px; }
+
+.compact { --knob-size: 30px; --device-width: 70px; width: 270px; height: 44px; }
+.compact .label { font-size: 12px; }
+
+@media (max-width: 359px) {
+  .capsule { --device-width: 66px; }
+  .label { font-size: 12px; padding-left: calc(var(--knob-size) + 14px); padding-right: calc(var(--device-width) + 12px); }
+  .chevrons { display: none; }
+  .compact { --knob-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capsule { transition: none; }
+}

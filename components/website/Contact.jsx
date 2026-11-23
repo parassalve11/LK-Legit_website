@@ -44,7 +44,18 @@ export default function Contact({ section, settings, socials, logoUrl = "/Logo.p
                 error={errors.email}
               />
             </div>
-            <Field label="Subject" name="subject" placeholder="How can we help?" error={errors.subject} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field
+                label="Phone"
+                name="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="+91 98765 43210"
+                error={errors.phone}
+              />
+              <Field label="Subject" name="subject" placeholder="How can we help?" error={errors.subject} />
+            </div>
             <label className="block">
               <span className="mb-1 block text-[11px] font-semibold uppercase tracking-widest text-[#a19c8f]">
                 Message

@@ -1,0 +1,7 @@
+# Trading terminal capsule asset
+
+Generated with the built-in image_gen tool. Final asset: `public/images/terminal-phone-laptop.webp` (480 × 332, transparent WebP). The original generated PNG was preserved; the web asset was trimmed and resized for the capsule.
+
+## Prompt
+
+Use case: product-mockup. Create a clean transparent-background website button asset: exactly one upright silver smartphone in portrait orientation in the front-left, overlapping exactly one slim silver open laptop behind it to the right. Straight-on front view, almost flat elevation, minimal perspective, laptop display upright and a slim visible keyboard/base. Phone top slightly higher than laptop top. Both screens bright white trading-terminal interfaces with tiny blue/gray interface bars and green/red candlestick charts; detailed yet crisp and legible as devices when reduced to 80 pixels wide. Similar to compact trading-platform download button device illustrations. Devices tightly grouped, entire silhouettes visible, compact approximately 1.3:1 width-to-height composition, minimal empty transparent padding. Realistic polished product cutout, neutral studio light, restrained soft contact shadow only. No background, no platform, no tablet, no desktop monitor, no floating chart panels, no separate emblem, no promotional words, no capsule or UI button. True alpha transparency. This will sit at the RIGHT edge of a dark muted-gold swipe button with the devices slightly protruding above the button.

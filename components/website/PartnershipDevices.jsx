@@ -19,12 +19,7 @@ export default function PartnershipDevices({ section }) {
       <div className={styles.container}>
         <div className={styles.layout}>
           <div className={styles.copy}>
-            <div className={styles.brandRow}>
-              <a href={registerLink} target="_blank" rel="noopener noreferrer" aria-label="Visit ByteFX (opens in a new tab)">
-                <Image src="/bytefx.png" alt="ByteFX" width={170} height={54} className={styles.logo} />
-              </a>
-              <span className={styles.badge}>{f.badgeText || "Official IB Partner"}</span>
-            </div>
+            <span className={styles.badge}>{f.badgeText || "Official IB Partner"}</span>
             <h2 id="partner-heading" className={styles.headline}>
               Your markets.<br />Every screen.<br />MetaTrader 5.
             </h2>
@@ -33,7 +28,9 @@ export default function PartnershipDevices({ section }) {
             </p>
             <div className={styles.actions}>
               <BrokerRedirectLink href={registerLink} className={styles.primaryLink}>
-                Get started <ArrowRight size={17} aria-hidden="true" />
+                <span>Get started with</span>
+                <Image src="/bytefx.png" alt="ByteFX" width={384} height={82} className={styles.buttonLogo} />
+                <ArrowRight size={17} aria-hidden="true" className={styles.buttonArrow} />
               </BrokerRedirectLink>
               <a className={styles.loginLink} href={depositLink} target="_blank" rel="noopener noreferrer">
                 Already registered? Log in <ArrowRight size={14} aria-hidden="true" />
