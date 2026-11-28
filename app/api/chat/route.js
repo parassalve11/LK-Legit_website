@@ -58,12 +58,16 @@ export async function POST(request) {
   const lead = { name, phone, email: "", subject: interest, message };
   try {
     await createLead({ ...lead, type: "chat" });
+    // Telegram runs after the reply is sent, so it never slows the chat down.
+    after(() => notifyNewLead({ ...lead, title: "New lead from website chat" }));
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[chat] save failed:", error?.message);
-    return NextResponse.json({ ok: false, error: "Couldn't save right now." }, { status: 500 });
   }
 
-  // Telegram runs after the reply is sent, so it never slows the chat down.
-  after(() => notifyNewLead({ ...lead, title: "New lead from website chat" }));
-  return NextResponse.json({ ok: true });
+  // Database unreachable: still deliver the lead through Telegram.
+  if (await notifyNewLead({ ...lead, title: "New lead from website chat (not saved in admin, database was down)" })) {
+    return NextResponse.json({ ok: true });
+  }
+  return NextResponse.json({ ok: false, error: "Couldn't save right now." }, { status: 500 });
 }

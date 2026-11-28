@@ -16,7 +16,7 @@ export async function notifyNewLead(lead) {
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
-  if (!token || chatIds.length === 0) return;
+  if (!token || chatIds.length === 0) return false;
 
   const lines = [
     `<b>📩 ${escapeHtml(lead.title || "New lead from the website")}</b>`,
@@ -30,7 +30,8 @@ export async function notifyNewLead(lead) {
   ].filter((line) => line !== null);
   const text = lines.join("\n");
 
-  await Promise.all(
+  // Resolves true when at least one chat received the alert.
+  const results = await Promise.all(
     chatIds.map(async (chatId) => {
       try {
         const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -47,10 +48,14 @@ export async function notifyNewLead(lead) {
         if (!res.ok) {
           const body = await res.text();
           console.error(`[telegram] send failed (${res.status}):`, body.slice(0, 300));
+          return false;
         }
+        return true;
       } catch (error) {
         console.error("[telegram] send failed:", error?.message);
+        return false;
       }
     }),
   );
+  return results.some(Boolean);
 }

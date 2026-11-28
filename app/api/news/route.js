@@ -10,7 +10,7 @@ import { NEWS_TABS, SOURCES, imageFor, sampleFor } from "@/lib/news";
 
 export const revalidate = 300; // cache for 5 minutes
 const FETCH_TIMEOUT_MS = 8000;
-const LIMIT = 3;
+const LIMIT = 6;
 
 function decodeEntities(input = "") {
   return input
@@ -122,6 +122,8 @@ async function fromInvesting(tab) {
       title: tagValue(block, "title"),
       excerpt: stripTags(tagValue(block, "description")),
       src: "Investing.com",
+      author: tagValue(block, "author") || "Investing.com",
+      publishedAt: Number.isNaN(new Date(iso).getTime()) ? null : new Date(iso).toISOString(),
       img: imageFor(tab, i),
       url,
     };
