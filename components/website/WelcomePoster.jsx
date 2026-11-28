@@ -2,10 +2,24 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { ChevronRight, Radio, X, Youtube } from "lucide-react";
+import { ArrowUpRight, X, Youtube } from "lucide-react";
 import styles from "./WelcomePoster.module.css";
+import { Coin, CoinSprite, GoldStack } from "./WelcomeVectors";
 
 const SESSION_KEY = "lk55-welcome-poster-seen";
+
+// Coins drifting up behind LK: horizontal position, size, timing, depth.
+// Negative delays mean coins are already mid-flight when the popup opens.
+const FLOATING_COINS = [
+  { x: "6%", size: 34, dur: 7.5, delay: -1, blur: 0, op: 0.9, tilt: "-12deg" },
+  { x: "22%", size: 22, dur: 9, delay: -5.5, blur: 1.5, op: 0.55, tilt: "18deg" },
+  { x: "38%", size: 28, dur: 8, delay: -3, blur: 0.6, op: 0.75, tilt: "6deg" },
+  { x: "55%", size: 40, dur: 10, delay: -7.5, blur: 0, op: 0.9, tilt: "-20deg" },
+  { x: "70%", size: 20, dur: 8.5, delay: -2, blur: 2, op: 0.5, tilt: "10deg" },
+  { x: "82%", size: 30, dur: 7, delay: -4.5, blur: 0.4, op: 0.8, tilt: "-6deg" },
+  { x: "14%", size: 18, dur: 11, delay: -9, blur: 2.4, op: 0.45, tilt: "24deg" },
+  { x: "64%", size: 24, dur: 9.5, delay: -0.5, blur: 1, op: 0.65, tilt: "-15deg" },
+];
 const linkProps = (href) =>
   /^https?:\/\//.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
@@ -153,60 +167,66 @@ export default function WelcomePoster({
         <X size={16} aria-hidden="true" />
       </button>
 
-      <a href={channelHref} {...linkProps(channelHref)} className={styles.site}>
-        <span className={styles.siteBar} aria-hidden="true" />
-        youtube.com/<strong>{channelHandle}</strong>
-      </a>
+      <header className={styles.header}>
+        <a href={channelHref} {...linkProps(channelHref)} className={styles.brand}>
+          <Image src="/Logo.png" alt="" width={36} height={36} />
+          <span>{siteName}<small>{channelHandle}</small></span>
+        </a>
+      </header>
 
       <div className={styles.body}>
-        <div className={styles.visual}>
-          <span className={styles.shapeBack} aria-hidden="true" />
-          <span className={styles.shape} aria-hidden="true" />
-          <Image
-            src="/images/lk-mentor-cutout-bw.webp"
-            alt="LK, your trading mentor"
-            width={1122}
-            height={1402}
-            sizes="(max-width: 639px) 45vw, 210px"
-            loading="eager"
-            className={styles.portrait}
-          />
-        </div>
-
-        <div className={styles.copy}>
-          <span className={styles.pill}>
-            <span className={styles.liveDot} aria-hidden="true" /> Daily Livestream
-          </span>
+        <div className={styles.intro}>
+          <span className={styles.eyebrow}>A seat in the trading room</span>
           <h2 id="welcome-poster-title" className={styles.headline}>
-            Trade the <br />markets <b>live</b> <br /><b>with <em>LK!</em></b>
+            Real charts.<br />Learn live.<br /><span>With LK.</span>
           </h2>
-          <p id="welcome-poster-description" className={styles.description}>
-            Join every trading day on YouTube for <b>real charts, real setups.</b>
-          </p>
         </div>
-      </div>
+        <div className={styles.visual}>
+          <CoinSprite />
+          <div className={styles.stage}>
+            <div className={styles.coinField} aria-hidden="true">
+              {FLOATING_COINS.map((c, i) => (
+                <Coin
+                  key={i}
+                  className={styles.floatCoin}
+                  style={{
+                    "--x": c.x,
+                    "--size": `${c.size}px`,
+                    "--dur": `${c.dur}s`,
+                    "--delay": `${c.delay}s`,
+                    "--blur": `${c.blur}px`,
+                    "--op": c.op,
+                    "--tilt": c.tilt,
+                  }}
+                />
+              ))}
+            </div>
+            <Image
+              src="/images/lk-mentor-thumbnail.webp"
+              alt="LK, your trading mentor"
+              width={1122}
+              height={1402}
+              sizes="(max-width: 599px) 36vw, 260px"
+              loading="eager"
+              className={styles.portrait}
+            />
+          </div>
+          <GoldStack className={styles.goldStack} />
+        </div>
 
-      <div className={styles.message}>
-        <span className={styles.messageIcon} aria-hidden="true"><ChevronRight size={22} strokeWidth={3} /></span>
-        <p>Your trading growth starts with <b>watching it live.</b></p>
-      </div>
-
-      <div className={styles.actions}>
-        <a href={liveHref} {...linkProps(liveHref)} onClick={dismiss} className={styles.primary}>
-          <Youtube size={17} aria-hidden="true" /> Watch <b>Live</b>
-        </a>
-        <button type="button" onClick={dismiss} className={styles.skip}>Maybe later</button>
-      </div>
-
-      <div className={styles.footer}>
-        <span className={styles.logo}>
-          <Image src="/Logo.png" alt="" width={22} height={22} /> {siteName}
-        </span>
-        <span className={styles.divider} aria-hidden="true" />
-        <span className={styles.meta}>
-          <Radio size={16} aria-hidden="true" />
-          <span><small>Live on YouTube</small>Every trading day</span>
-        </span>
+        <div className={styles.details}>
+          <p id="welcome-poster-description" className={styles.description}>
+            Understand the setup, the entry and the risk. Join LK on YouTube for live market breakdowns every trading day.
+          </p>
+          <p className={styles.markets}>Gold <span aria-hidden="true">/</span> Forex <span aria-hidden="true">/</span> Crypto</p>
+        </div>
+        <div className={styles.actions}>
+          <a href={liveHref} {...linkProps(liveHref)} onClick={dismiss} className={styles.primary}>
+            <Youtube size={19} aria-hidden="true" /> Watch on YouTube
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
+          <button type="button" onClick={dismiss} className={styles.skip}>Explore the website</button>
+        </div>
       </div>
       <p className={styles.fine}>
         Educational content only, not financial advice. Trading involves risk.
