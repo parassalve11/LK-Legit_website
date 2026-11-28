@@ -2,6 +2,7 @@ import { getIcon } from "@/components/common/icons";
 import { Reveal, CountUp, GoldButton, GhostGoldButton } from "@/components/common/Primitives";
 import { BadgeCheck, Play, Youtube } from "lucide-react";
 import { withBold } from "@/components/common/RichText";
+import styles from "./LearnFromLK.module.css";
 
 const DEFAULT_CREDENTIAL = "NISM Certified · Verified Trader";
 
@@ -14,24 +15,25 @@ export default function LearnFromLK({ section, stats }) {
   const imageUrl = f.imageUrl?.trim();
   // Upgrade earlier default photos while preserving custom admin images.
   const useMentorPortrait = !imageUrl ||
+    imageUrl === "/images/lk-mentor-portrait.webp" ||
+    imageUrl === "/images/lk-mentor-seated.webp" ||
     imageUrl === "/images/lk-mentor-gold-glasses.webp" ||
     imageUrl === "/images/lk-mentor-casual-smile.webp" ||
     imageUrl === "/images/lk-mentor-thumbnail.webp" ||
     imageUrl.startsWith("https://images.unsplash.com/photo-1642790106117-e829e14a795f");
-  const portraitAlt = "LK smiling in round glasses and a pastel knit polo";
+  const portraitAlt = "LK seated in a leather armchair, wearing round glasses and a pastel knit polo";
   // Older databases have no credential field yet; show the default until set.
   const credential = (f.credentialBadge ?? DEFAULT_CREDENTIAL).trim();
 
   return (
-    <section id="learn" className="relative overflow-hidden bg-[#050505] py-24">
-      <div className="pointer-events-none absolute -right-40 top-1/3 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(245,196,81,0.1),rgba(245,196,81,0.03)_45%,transparent_70%)]" />
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr]">
-        <div>
+    <section id="learn" className={styles.section}>
+      <div className={styles.layout}>
+        <div className={styles.content}>
           <Reveal>
             <div className="eyebrow mb-4">{section.eyebrow}</div>
           </Reveal>
           <Reveal delay={0.05}>
-            <h2 className="font-display text-3xl font-bold leading-tight text-[#f2f0eb] sm:text-4xl md:text-5xl">
+            <h2 className="font-display text-3xl font-bold leading-tight text-[#f2f0eb] sm:text-4xl md:text-5xl xl:text-[54px]">
               {section.title} <span className="text-gold-gradient">{section.subtitle}</span>
             </h2>
           </Reveal>
@@ -85,7 +87,7 @@ export default function LearnFromLK({ section, stats }) {
           ) : null}
 
           <Reveal delay={0.3}>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className={`mt-8 flex flex-wrap gap-3 ${styles.actions}`}>
               {f.ctaText ? (
                 <GoldButton as="a" href={f.ctaLink || "#"} {...linkProps(f.ctaLink)}>
                   <Youtube className="h-4 w-4" /> {f.ctaText}
@@ -100,24 +102,18 @@ export default function LearnFromLK({ section, stats }) {
           </Reveal>
         </div>
 
-        <Reveal delay={0.15}>
-          <div className="relative mx-auto w-full max-w-md lg:mr-0 lg:max-w-[480px]">
-            {/* Soft gold halo behind the frame */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-[radial-gradient(closest-side,rgba(245,196,81,0.18),transparent)]"
-            />
-            {/* The photo is tall (3:4), so it is cropped to 4:5 and anchored near
-                the top: face to waist stays in frame, the floor is trimmed. */}
-            <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(245,196,81,0.35)] bg-[#0d0b07] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9),0_0_0_6px_rgba(245,196,81,0.06)]">
+        <Reveal delay={0.15} className={styles.visual}>
+          <div className={styles.portrait}>
+            <div aria-hidden="true" className={styles.rays} />
+            <div className={styles.frame}>
               <img
-                src={useMentorPortrait ? "/images/lk-mentor-portrait.webp" : imageUrl}
+                src={useMentorPortrait ? "/images/lk-mentor-seated.webp" : imageUrl}
                 alt={useMentorPortrait ? portraitAlt : f.imageAlt || portraitAlt}
-                width={1000}
-                height={1333}
+                width={1122}
+                height={1402}
                 loading="lazy"
                 decoding="async"
-                className="aspect-[4/5] w-full object-cover object-[50%_18%]"
+                className={styles.photo}
               />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
             </div>
@@ -125,7 +121,7 @@ export default function LearnFromLK({ section, stats }) {
             <a
               href={f.ctaLink || "#"}
               {...linkProps(f.ctaLink)}
-              className="glass-panel absolute bottom-5 left-5 right-5 flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:border-[rgba(245,196,81,0.6)] sm:left-auto sm:right-6 sm:max-w-xs"
+              className={`glass-panel absolute bottom-5 left-5 right-5 flex items-center gap-3 rounded-2xl px-4 py-3 transition hover:border-[rgba(245,196,81,0.6)] sm:left-auto sm:right-6 sm:max-w-xs ${styles.channel}`}
             >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#ff0033] text-white">
                 <Youtube className="h-5 w-5" />

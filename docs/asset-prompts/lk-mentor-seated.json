@@ -1,0 +1,7 @@
+{
+  "asset": "public/images/lk-mentor-seated.webp",
+  "tool": "Built-in image_gen",
+  "references": "User's seated mentor screenshot and existing LK standing portraits",
+  "prompt": "Use case: identity-preserve. Create a single photorealistic vertical 4:5 website portrait asset from the references. The FIRST reference is the user's black and gold Meet Your Mentor section: reproduce ONLY its right-hand photograph of LK seated in a brown leather armchair as closely as possible, preserving his exact face, round gold glasses, swept wavy dark hair, beard, cream and pale-blue zip-collar polo, white trousers, white sneakers, wristwatch, crossed-leg pose with one hand at his chin. The standing mall portraits show the same person and are supplementary identity references. Ignore completely the cryptocurrency news screenshot and computer-device collage. Match the seated reference's dark elegant interior, charcoal vertical wall panels, subtle warm shelf lighting and small green plant at upper right. Head fully visible with about 8 percent headroom, chair and crossed legs fill lower frame, face in upper central part. Natural skin and anatomy, same calm expression. Full bleed rectangular photograph only; no lettering, no YouTube badge, no interface, no border, no golden rays (these will be added with CSS). Keep the left background very dark for a natural blend into a black website. Output only this right-side seated portrait.",
+  "encoding": "WebP, quality 88, 1122 x 1402"
+}
