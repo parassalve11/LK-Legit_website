@@ -1,111 +1,51 @@
 "use client";
 
-import { useActionState } from "react";
-import { MapPin, Phone, ArrowRight, Loader2 } from "@/components/common/icons";
+import { MapPin, Phone, ArrowRight } from "@/components/common/icons";
+import { MessageCircle } from "lucide-react";
 import SocialIcon, { BRAND, brandKey } from "@/components/common/SocialIcon";
 import { Reveal, SectionHeader, GoldButton } from "@/components/common/Primitives";
-import { submitContact } from "@/app/(website)/actions";
-
-function Field({ label, name, error, ...props }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-[11px] font-semibold uppercase tracking-widest text-[#a19c8f]">
-        {label}
-      </span>
-      <input
-        name={name}
-        aria-invalid={error ? "true" : undefined}
-        className="w-full rounded-lg border border-[rgba(212,175,55,0.25)] bg-[rgba(10,8,5,0.6)] px-3 py-2 text-sm text-[#f2f0eb] outline-none focus:border-[#f5c451]"
-        {...props}
-      />
-      {error ? <span className="mt-1 block text-xs text-[#e6483c]">{error}</span> : null}
-    </label>
-  );
-}
 
 export default function Contact({ section, settings, socials, logoUrl = "/Logo.png" }) {
   const f = section.fields || {};
-  const [state, formAction, pending] = useActionState(submitContact, { ok: false });
-  const errors = state?.errors || {};
+  const phoneHref = settings.phone ? `tel:${settings.phone.replace(/[^\d+]/g, "")}` : null;
 
   return (
     <section id="contact" className="relative py-24">
       <SectionHeader eyebrow={section.eyebrow} title={section.title} gold={section.subtitle} />
       <div className="mx-auto mt-12 grid max-w-7xl grid-cols-1 gap-8 px-4 sm:px-6 lg:grid-cols-2">
         <Reveal>
-          <form action={formAction} className="glass-panel-strong space-y-4 rounded-3xl p-8">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Name" name="name" placeholder="Your name" error={errors.name} />
-              <Field
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="you@email.com"
-                error={errors.email}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field
-                label="Phone"
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="+91 98765 43210"
-                error={errors.phone}
-              />
-              <Field label="Subject" name="subject" placeholder="How can we help?" error={errors.subject} />
-            </div>
-            <label className="block">
-              <span className="mb-1 block text-[11px] font-semibold uppercase tracking-widest text-[#a19c8f]">
-                Message
-              </span>
-              <textarea
-                name="message"
-                rows={5}
-                placeholder="Write your message..."
-                className="w-full rounded-lg border border-[rgba(212,175,55,0.25)] bg-[rgba(10,8,5,0.6)] px-3 py-2 text-sm text-[#f2f0eb] outline-none focus:border-[#f5c451]"
-              />
-              {errors.message ? (
-                <span className="mt-1 block text-xs text-[#e6483c]">{errors.message}</span>
-              ) : null}
-            </label>
-
-            {/* Honeypot — hidden from people, irresistible to bots. */}
-            <input
-              type="text"
-              name="website"
-              tabIndex={-1}
-              autoComplete="off"
-              aria-hidden="true"
-              className="absolute h-0 w-0 opacity-0"
-            />
-
-            <GoldButton type="submit" disabled={pending} className="w-full justify-center">
-              {pending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Sending…
-                </>
-              ) : (
-                <>
-                  Send Message <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </GoldButton>
-
-            {state?.message ? (
-              <p
-                role="status"
-                className={
-                  state.ok
-                    ? "text-sm font-medium text-[#3ddc84]"
-                    : "text-sm font-medium text-[#e6483c]"
-                }
+          <div className="glass-panel-strong flex h-full flex-col rounded-3xl p-8">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(245,196,81,0.12)] text-[#f5c451] ring-1 ring-[rgba(245,196,81,0.35)]">
+              <MessageCircle className="h-6 w-6" />
+            </span>
+            <h3 className="mt-6 font-display text-2xl font-bold text-[#f2f0eb]">Chat with the LK team</h3>
+            <p className="mt-3 text-sm leading-relaxed text-[#c9c4b8]">
+              Ask about LK&apos;s trading lessons, joining the community or opening your ByteFX account.
+              Get instant answers from our assistant, or leave your number and the team will call you back.
+            </p>
+            <ul className="mt-6 space-y-2 text-sm text-[#e6e2d6]">
+              <li>• Instant answers, any time</li>
+              <li>• Share your number and we&apos;ll call you back</li>
+              <li>• Help with your ByteFX account</li>
+            </ul>
+            <div className="mt-auto flex flex-col gap-3 pt-8 sm:flex-row">
+              <GoldButton
+                type="button"
+                className="justify-center"
+                onClick={() => window.dispatchEvent(new Event("lk:open-chat"))}
               >
-                {state.message}
-              </p>
-            ) : null}
-          </form>
+                Start a chat <ArrowRight className="h-4 w-4" />
+              </GoldButton>
+              {phoneHref ? (
+                <a
+                  href={phoneHref}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(212,175,55,0.45)] px-6 py-3 text-sm font-semibold text-[#f5c451] transition hover:bg-[rgba(245,196,81,0.08)]"
+                >
+                  <Phone className="h-4 w-4" /> Call us
+                </a>
+              ) : null}
+            </div>
+          </div>
         </Reveal>
 
         <Reveal delay={0.1}>
@@ -117,7 +57,7 @@ export default function Contact({ section, settings, socials, logoUrl = "/Logo.p
                 {settings.phone ? (
                   <li>
                     <a
-                      href={`tel:${settings.phone.replace(/[^\d+]/g, "")}`}
+                      href={phoneHref}
                       className="flex items-center gap-3 transition hover:text-[#f5c451]"
                     >
                       <Phone className="h-4 w-4 text-[#f5c451]" /> {settings.phone}

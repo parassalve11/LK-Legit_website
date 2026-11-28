@@ -19,14 +19,14 @@ export async function notifyNewLead(lead) {
   if (!token || chatIds.length === 0) return;
 
   const lines = [
-    "<b>📩 New contact form message</b>",
+    `<b>📩 ${escapeHtml(lead.title || "New lead from the website")}</b>`,
     "",
     `<b>Name:</b> ${escapeHtml(lead.name)}`,
-    `<b>Email:</b> ${escapeHtml(lead.email)}`,
     lead.phone ? `<b>Phone:</b> ${escapeHtml(lead.phone)}` : null,
-    lead.subject ? `<b>Subject:</b> ${escapeHtml(lead.subject)}` : null,
+    lead.email ? `<b>Email:</b> ${escapeHtml(lead.email)}` : null,
+    lead.subject ? `<b>Interested in:</b> ${escapeHtml(lead.subject)}` : null,
     "",
-    `<b>Message:</b>\n${escapeHtml(lead.message).slice(0, 3500)}`,
+    `<b>Summary:</b>\n${escapeHtml(lead.message).slice(0, 3500)}`,
   ].filter((line) => line !== null);
   const text = lines.join("\n");
 

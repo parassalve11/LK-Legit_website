@@ -83,6 +83,51 @@ async function fromGoogleNews(tab) {
   });
 }
 
+/**
+ * Investing.com public RSS feeds — the primary source. Keyless; each headline
+ * links back to the article on Investing.com. Their article images refuse
+ * hotlinking (403), so cards use the curated artwork instead.
+ */
+const INVESTING_FEEDS = {
+  "Forex & Global": "https://www.investing.com/rss/news_1.rss", // Forex News
+  "Crypto News": "https://www.investing.com/rss/news_301.rss", // Cryptocurrency News
+  "Market Updates": "https://www.investing.com/rss/news_25.rss", // Stock Market News
+};
+
+async function fromInvesting(tab) {
+  const res = await fetch(INVESTING_FEEDS[tab], {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; TradeWithLK/1.0)" },
+    next: { revalidate },
+  });
+  if (!res.ok) throw new Error(`Investing.com responded ${res.status}`);
+
+  const xml = await res.text();
+  // The feeds mix in Investing.com's own subscription promos; skip those.
+  const PROMO = /investingpro|propicks|ai picks|% off|black friday|cyber monday|savings|discount|subscribe/i;
+  const blocks = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
+    .map((m) => m[1])
+    .filter((block) => !PROMO.test(tagValue(block, "title")))
+    .slice(0, LIMIT);
+  if (!blocks.length) throw new Error("No items in feed");
+
+  return blocks.map((block, i) => {
+    // pubDate looks like "2026-11-27 21:25:54" (UTC).
+    const rawDate = tagValue(block, "pubDate");
+    const iso = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(rawDate) ? `${rawDate.replace(" ", "T")}Z` : rawDate;
+    const url = tagValue(block, "link");
+    return {
+      id: url || `inv-${tab}-${i}`,
+      date: shortDate(iso),
+      title: tagValue(block, "title"),
+      excerpt: stripTags(tagValue(block, "description")),
+      src: "Investing.com",
+      img: imageFor(tab, i),
+      url,
+    };
+  });
+}
+
 /** Finnhub — better data and real article images, but needs a key. */
 async function fromFinnhub(tab, key) {
   const category = SOURCES[tab].finnhub;
@@ -113,6 +158,12 @@ export async function GET(request) {
   const requested = request.nextUrl.searchParams.get("tab");
   const tab = NEWS_TABS.includes(requested) ? requested : NEWS_TABS[0];
   const key = process.env.FINNHUB_API_KEY;
+
+  try {
+    return NextResponse.json({ source: "investing", tab, articles: await fromInvesting(tab) });
+  } catch (error) {
+    console.warn(`[news] Investing.com failed for "${tab}":`, error?.message);
+  }
 
   if (key) {
     try {

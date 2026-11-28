@@ -13,6 +13,7 @@ import Community from "@/components/website/Community";
 import Contact from "@/components/website/Contact";
 import Footer from "@/components/website/Footer";
 import WelcomePoster from "@/components/website/WelcomePoster";
+import ChatWidget from "@/components/website/ChatWidget";
 import SmoothScroll from "@/components/common/SmoothScroll";
 import PartnershipDevices from "@/components/website/PartnershipDevices";
 
@@ -74,6 +75,7 @@ export default async function HomePage() {
         })}
       </main>
       <Footer settings={c.settings} socials={c.socials} />
+      <ChatWidget phone={c.settings.phone} />
       <WelcomePoster
         siteName={c.settings.siteName}
         channelHref={channelHref}

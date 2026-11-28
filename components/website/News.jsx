@@ -89,10 +89,10 @@ export default function News({ section }) {
                 </div>
 
                 <div className="flex grow flex-col p-6">
-                  <h4 className="line-clamp-2 font-display text-lg font-bold leading-snug text-[#f2f0eb]">
+                  <h4 className={`${n.excerpt ? "line-clamp-2" : "line-clamp-3"} font-display text-lg font-bold leading-snug text-[#f2f0eb]`}>
                     {n.title}
                   </h4>
-                  <p className="mt-2 line-clamp-2 text-sm text-[#c9c4b8]">{n.excerpt}</p>
+                  {n.excerpt ? <p className="mt-2 line-clamp-2 text-sm text-[#c9c4b8]">{n.excerpt}</p> : null}
                   <div className="mt-auto pt-4">
                     <a
                       href={n.url}
@@ -108,6 +108,14 @@ export default function News({ section }) {
             ))}
           </div>
         )}
+        {!loading && articles.some((n) => n.src === "Investing.com") ? (
+          <p className="mt-6 text-center text-xs text-[#a19c8f]">
+            Headlines from{" "}
+            <a href="https://www.investing.com" target="_blank" rel="noopener noreferrer" className="text-[#f5c451] hover:text-white">
+              Investing.com
+            </a>
+          </p>
+        ) : null}
       </div>
     </section>
   );
